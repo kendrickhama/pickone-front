@@ -1,19 +1,34 @@
 "use client"
 
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
 export default function Navigation() {
   const pathname = usePathname()
+  const router = useRouter()
+  const [email, setEmail] = useState<string | null>(null)
+
+  useEffect(() => {
+    const storedEmail = localStorage.getItem("email")
+    setEmail(storedEmail)
+  }, [])
+
+  const handleLogout = () => {
+    localStorage.removeItem("accessToken")
+    localStorage.removeItem("refreshToken")
+    localStorage.removeItem("email")
+    setEmail(null)
+    router.push("/") // 홈으로 이동
+  }
 
   const navItems = [
     { href: "/", label: "Home" },
     { href: "/recruit", label: "멤버모집" },
     { href: "/explore", label: "파동" },
     { href: "/profile", label: "마이페이지" },
-    { href: "/login", label: "Login" },
   ]
 
   return (
@@ -24,34 +39,45 @@ export default function Navigation() {
             pickone
           </Link>
 
-          {/* PC 버전 메뉴 */}
+          {/* PC 메뉴 */}
           <div className="hidden md:flex items-center space-x-8">
-            {navItems.map((item) =>
-              item.label === "Login" ? (
-                <Link key={item.href} href={item.href}>
-                  <Button
-                    variant="outline"
-                    className="border-gray-300 text-gray-700 hover:bg-gray-50"
-                  >
-                    {item.label}
-                  </Button>
-                </Link>
-              ) : (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={cn(
-                    "text-gray-600 hover:text-gray-900 transition-colors font-medium",
-                    pathname === item.href && "text-gray-900"
-                  )}
+            {navItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  "text-gray-600 hover:text-gray-900 transition-colors font-medium",
+                  pathname === item.href && "text-gray-900"
+                )}
+              >
+                {item.label}
+              </Link>
+            ))}
+
+            {email ? (
+              <div className="flex items-center space-x-3">
+                <span className="text-sm text-gray-700">{email}</span>
+                <Button
+                  variant="outline"
+                  className="border-gray-300 text-gray-700 hover:bg-gray-50"
+                  onClick={handleLogout}
                 >
-                  {item.label}
-                </Link>
-              )
+                  로그아웃
+                </Button>
+              </div>
+            ) : (
+              <Link href="/login">
+                <Button
+                  variant="outline"
+                  className="border-gray-300 text-gray-700 hover:bg-gray-50"
+                >
+                  Login
+                </Button>
+              </Link>
             )}
           </div>
 
-          {/* 모바일 버전 메뉴 */}
+          {/* 모바일 메뉴 */}
           <div className="md:hidden flex items-center space-x-2">
             {navItems.map((item) => (
               <Link

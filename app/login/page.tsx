@@ -15,7 +15,7 @@ export default function LoginPage() {
 
   const handleLogin = async () => {
     try {
-      const response = await fetch("http://localhost:8080/api/auth/login", {
+      const response = await fetch("http://3.35.49.195:8080/api/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -36,8 +36,9 @@ export default function LoginPage() {
       const { accessToken, refreshToken } = data.result
       localStorage.setItem("accessToken", accessToken)
       localStorage.setItem("refreshToken", refreshToken)
+      localStorage.setItem("email", email)
 
-      router.push("/profile")
+      router.push("/")
     } catch (err) {
       console.error("로그인 오류:", err)
       setError("이메일 또는 비밀번호를 확인해주세요.")
@@ -46,10 +47,7 @@ export default function LoginPage() {
 
   return (
     <>
-      {/* ✅ 헤더 */}
       <Navigation />
-
-      {/* ✅ 본문 */}
       <div className="flex flex-col items-center justify-center min-h-screen px-4 pt-24">
         <h1 className="text-2xl font-bold mb-6">로그인</h1>
         <div className="w-full max-w-sm space-y-4">
@@ -69,10 +67,17 @@ export default function LoginPage() {
           <Button onClick={handleLogin} className="w-full">
             로그인
           </Button>
+
+          {/* ✅ 회원가입 버튼 추가 */}
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={() => router.push("/signup")}
+          >
+            회원가입
+          </Button>
         </div>
       </div>
-
-      {/* ✅ 푸터 */}
       <Footer />
     </>
   )
