@@ -26,6 +26,7 @@ export default function Navigation() {
 
   const navItems = [
     { href: "/", label: "Home" },
+    { href: "/band", label: "밴드" },
     { href: "/recruit", label: "멤버모집" },
     { href: "/explore", label: "파동" },
     { href: "/profile", label: "마이페이지" },
@@ -47,7 +48,7 @@ export default function Navigation() {
                 href={item.href}
                 className={cn(
                   "text-gray-600 hover:text-gray-900 transition-colors font-medium",
-                  pathname === item.href && "text-gray-900"
+                  // pathname === item.href && "text-gray-900"
                 )}
               >
                 {item.label}

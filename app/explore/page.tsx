@@ -226,7 +226,7 @@ export default function ExplorePage() {
       <div className="container mx-auto px-4 py-8 pt-24">
         {/* Search Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-6">파츠</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-6">파동</h1>
           <div className="relative max-w-md">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input
