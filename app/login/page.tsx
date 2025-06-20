@@ -22,28 +22,46 @@ export default function LoginPage() {
     }
     setLoading(true)
     try {
-      const res = await fetch("http://3.35.49.195:8080/api/auth/login", {
+      const res = await fetch("/api/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       })
-      if (!res.ok) {
+
+      const data = await res.json()
+
+      if (!res.ok || !data.isSuccess) {
         let msg = "로그인 실패"
-        try {
-          const errData = await res.json()
-          if (errData?.message) msg = errData.message
-        } catch { }
+
+        // 코드 기반 분기 처리
+        switch (data.code) {
+          case "INVALID_CREDENTIALS":
+            msg = "이메일 또는 비밀번호가 올바르지 않습니다."
+            break
+          case "USER_NOT_FOUND":
+            msg = "가입되지 않은 이메일입니다."
+            break
+          case "MISSING_FIELDS":
+            msg = "이메일과 비밀번호를 모두 입력해주세요."
+            break
+          case "ACCOUNT_LOCKED":
+            msg = "계정이 잠겨있습니다. 고객센터로 문의해주세요."
+            break
+          default:
+            msg = data.message || "로그인에 실패했습니다."
+        }
+
         throw new Error(msg)
       }
-      const data = await res.json()
-      if (!data.isSuccess) throw new Error(data.message || "로그인 실패")
-      // 성공 처리...
+
+      // ✅ 로그인 성공 처리
       localStorage.setItem("accessToken", data.result.accessToken)
       localStorage.setItem("refreshToken", data.result.refreshToken)
       localStorage.setItem("email", email)
       router.push("/")
+
     } catch (e: any) {
-      console.error(e)
+      console.error("로그인 오류:", e)
       setError(e.message || "로그인 중 오류가 발생했습니다.")
     } finally {
       setLoading(false)

@@ -57,19 +57,42 @@ export default function SignupPage() {
       })
       const data = await response.json()
       console.log("백엔드 응답:", data)
-      if (!data.isSuccess) throw new Error(data.message || "회원가입 실패")
+      if (!data.isSuccess) {
+        let message = "회원가입 실패"
+
+        switch (data.code) {
+          case "DUPLICATE_EMAIL":
+            message = "이미 사용 중인 이메일입니다."
+            break
+          case "INVALID_PASSWORD":
+            message = "비밀번호 형식이 올바르지 않습니다."
+            break
+          case "WEAK_PASSWORD":
+            message = "비밀번호가 너무 약합니다."
+            break
+          case "MISSING_FIELDS":
+            message = "필수 입력값이 누락되었습니다."
+            break
+          default:
+            message = data.message || "회원가입에 실패했습니다."
+        }
+
+        throw new Error(message)
+      }
+
       alert("회원가입 성공! 로그인 페이지로 이동합니다.")
       router.push("/login")
-    } catch (err) {
+
+    } catch (err: any) {
       console.error("회원가입 오류:", err)
-      setError("입력 정보를 다시 확인해주세요.")
+      setError(err.message || "입력 정보를 다시 확인해주세요.")
     }
   }
 
   // Input에 표시할 텍스트: 선택 전이면 빈 문자열 대신 placeholder가 보이도록
   const genderLabel = form.gender === "MALE" ? "남자"
     : form.gender === "FEMALE" ? "여자"
-    : ""
+      : ""
 
   return (
     <>
