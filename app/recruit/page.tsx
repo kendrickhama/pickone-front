@@ -80,37 +80,50 @@ export default async function RecruitPage({ searchParams }: PageParams) {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {posts.map((post: any) => (
-              <Card key={post.id} className="shadow-lg hover:shadow-xl ">
+              <Card key={post.id} className="shadow-lg duration-300 ease-out hover:shadow-2xl hover:-translate-y-0.5 hover:scale-105">
                 <Link href={`/recruit/${post.id}`}>
                   <img
                     src={post.thumbnail || "/no-image.png"}
                     alt={post.title}
-                    className="w-full h-48 object-cover rounded-sm"
+                    className="w-full h-32 sm:h-40 object-cover rounded-sm"
                   />
-                </Link>
+                
                 <CardContent>
                   <h3 className="font-semibold mb-2">{post.title}</h3>
-                  <p className="text-sm text-gray-600 mb-4 line-clamp-2">
+                  <p className="text-sm text-gray-600 mb-2 line-clamp-2">
                     {post.description}
                   </p>
-                  <div className="flex flex-wrap gap-2 mb-4">
+                  <div className="flex flex-wrap gap-2 mb-2">
                     {post.genres.genre.map((g: string) => (
                       <Badge key={g}>{g}</Badge>
                     ))}
                   </div>
+                  {/* 세션(악기+숙련도) */}
+                  <div className="flex flex-wrap gap-2 mb-2">
+                    {post.instruments.map((inst: any, idx: number) => (
+                      <Badge key={idx} variant="secondary" className="text-xs">
+                        {inst.instrument.replace(/_/g, " ")}
+                      </Badge>
+                    ))}
+                  </div>
                   <div className="flex justify-between items-center">
-                    <Link
+                    {/* <Link
                       href={`/recruit/${post.id}`}
-                      className="bg-orange-500 text-white px-3 py-1 rounded text-sm"
+                      className="inline-block bg-gradient-to-br from-orange-300 to-orange-400  text-white 
+                      font-medium px-4 py-1 rounded-lg shadow-md
+    transition-all duration-200
+    hover:brightness-110 hover:shadow-xl
+  "
                     >
                       자세히 보기
-                    </Link>
+                    </Link> */}
                     <div className="flex space-x-2">
                       <Heart className="h-5 w-5 text-gray-500" />
                       <Share2 className="h-5 w-5 text-gray-500" />
                     </div>
                   </div>
                 </CardContent>
+                </Link>
               </Card>
             ))}
           </div>
