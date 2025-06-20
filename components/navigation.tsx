@@ -25,7 +25,7 @@ export default function Navigation() {
   }
 
   const navItems = [
-    { href: "/", label: "Home" },
+    { href: "/", label: "홈" },
     { href: "/band", label: "밴드" },
     { href: "/recruit", label: "멤버모집" },
     { href: "/explore", label: "파동" },
@@ -41,7 +41,7 @@ export default function Navigation() {
           </Link>
 
           {/* PC 메뉴 */}
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="font-semibold hidden md:flex items-center space-x-8">
             {navItems.map((item) => (
               <Link
                 key={item.href}
