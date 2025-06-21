@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import Navigation from "@/components/navigation"
 import ProfileSlider from "@/components/profile-slider"
 import Footer from "@/components/footer"
+import RecruitPreview from "@/components/recruit-preview"
 
 export default function HomePage() {
   return (
@@ -20,6 +21,9 @@ export default function HomePage() {
           <p className="text-xl text-gray-600 mb-8 font-medium">취향대로 만나는 밴드메이커</p>
 
           <div className="max-w-2xl mx-auto mb-8">
+             <p className="text-gray-600 mb-4 leading-relaxed">
+              당신의 좋아하는 밴드 공연일정을 확인하세요.
+            </p>
             <p className="text-gray-600 mb-4 leading-relaxed">
               피크원은 당신이 좋아하는 장르, 연주 스타일, 음악적 성질을 바탕으로
               <br />
@@ -39,6 +43,7 @@ export default function HomePage() {
           </Button>
         </div>
       </section>
+         <RecruitPreview /> {/* ← 추가 */}
 
       {/* Members Section */}
       <section className="bg-white py-16">
