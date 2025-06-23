@@ -24,37 +24,81 @@ const instrumentOptions = [
 const proficiencyOptions = [
     "NEVER_PLAYED",
     "BEGINNER",
+    "BASIC",
     "INTERMEDIATE",
     "ADVANCED",
-    "EXPERT",
+    "SEMI_PRO",
+    "PROFESSIONAL",
+    "MASTER"
 ]
 const genreOptions = [
     "INDIE_ROCK",
-    "POP",
-    "JAZZ",
-    "CLASSIC",
+    "ALTERNATIVE_ROCK",
+    "HARD_ROCK",
+    "POST_ROCK",
+    "SHOEGAZING",
+    "HEAVY_METAL",
+    "PUNK_ROCK",
+    "GRUNGE",
+    "PROGRESSIVE_ROCK",
+    "GARAGE_ROCK",
+    "CLASSIC_ROCK",
+
+    "DEATH_METAL",
+    "BLACK_METAL",
+    "THRASH_METAL",
+    "DOOM_METAL",
+
     "FOLK",
-    "ELECTRONIC",
+    "FOLK_ROCK",
+    "ACOUSTIC",
+
+    "JAZZ",
+    "SMOOTH_JAZZ",
+    "FUSION_JAZZ",
+    "LOFI_JAZZ",
+
+    "POP",
+    "DREAM_POP",
+    "SYNTH_POP",
+    "ELECTRO_POP",
+
     "HIPHOP",
-    "METAL",
-    "PUNK",
-    // 필요시 추가
+    "LOFI",
+    "EDM",
+    "AMBIENT",
+    "HOUSE",
+    "TECHNO",
+    "TRANCE",
+
+    "BLUES",
+    "SOUL",
+    "RNB",
+
+    "CLASSICAL",
+    "FUNK",
+    "REGGAE",
+    "WORLD_MUSIC",
+    "EXPERIMENTAL",
+    "POST_PUNK",
+    "MATH_ROCK",
+    "GOSPEL",
 ]
 
 export default function NewRecruitPage() {
     const router = useRouter()
     // 기본 필드
     const [title, setTitle] = useState("")
-    const [type, setType] = useState("LONG") // 기본값 LONG 
+    const [type, setType] = useState("Long") // 기본값 LONG 
     const [description, setDescription] = useState("")
     const [region, setRegion] = useState("")
     const [thumbnail, setThumbnail] = useState("")
     const [snsLink, setSnsLink] = useState("")
 
     // 악기/숙련도 배열: [{instrument, proficiency}, ...]
-const [instrumentDetails, setInstrumentDetails] = useState<{ instrument: string; proficiency: string }[]>([
-    { instrument: "", proficiency: "" },
-])
+    const [instrumentDetails, setInstrumentDetails] = useState<{ instrument: string; proficiency: string }[]>([
+        { instrument: "", proficiency: "" },
+    ])
 
     // 장르 선택: string 배열
     const [genres, setGenres] = useState<string[]>([])
@@ -148,7 +192,7 @@ const [instrumentDetails, setInstrumentDetails] = useState<{ instrument: string;
                 body: JSON.stringify(body),
             })
             const resBody = await res.json()
-            console.log("✅ 백엔드 응답:", resBody) 
+            console.log("✅ 백엔드 응답:", resBody)
             if (!res.ok) {
                 const errData = await res.json().catch(() => null)
                 throw new Error(errData?.message || `서버 오류: ${res.status}`)
