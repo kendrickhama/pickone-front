@@ -112,11 +112,11 @@ export default function ProfileSlider({
       })
     }
   }
-
+  
   return (
     <section className="bg-white py-12">
       <div className="max-w-7xl mx-auto px-4">
-        <h3 className="text-xl font-bold text-[#ff7f00] mb-4">{title}</h3>
+        <h3 className="text-lg font-semibold text-[#2F3438] mb-4">{title}</h3>
         <div className="relative">
           <button
             onClick={() => scroll("left")}

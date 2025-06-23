@@ -37,9 +37,9 @@ export default function HomePage() {
           <Button
             asChild
             size="lg"
-            className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 text-lg rounded-full"
-          >
-            <Link href="/recruit">View more {">"}</Link>
+            className="bg-white text-orange-500     px-6 py-2 rounded-full     border border-orange-300 
+                hover:bg-gradient-to-r hover:from-orange-400 hover:to-orange-600     hover:text-white     transition-all duration-200  "          >
+            <Link href="/recruit">멤버모집 보러가기 {">"}</Link>
           </Button>
         </div>
       </section>
