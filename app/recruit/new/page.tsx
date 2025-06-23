@@ -180,11 +180,12 @@ export default function NewRecruitPage() {
             }
             const accessToken = localStorage.getItem("accessToken")
             const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3000";
-            const res = await fetch(`${baseUrl}/api/recruitments`, {
+            // app/recruit/new/page.tsx 의 handleSubmit 안에서
+            const res = await fetch(`/api/recruitments`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: `Bearer ${accessToken}`, // 💡 여기 중요
+                    Authorization: `Bearer ${accessToken}`,
                 },
                 body: JSON.stringify(body),
             })
