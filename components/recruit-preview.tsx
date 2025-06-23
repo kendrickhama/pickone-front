@@ -17,29 +17,42 @@ interface Post {
 
 export default function RecruitPreview() {
   const [posts, setPosts] = useState<Post[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [visible, setVisible] = useState(false)
 
   useEffect(() => {
     async function fetchPosts() {
       try {
-        // ✅ 상대경로만 사용
+        setLoading(true)
         const res = await fetch(`/api/recruitments?page=0&size=3`)
         if (!res.ok) throw new Error(`API 요청 실패: ${res.status}`)
         const json = await res.json()
-        console.log("RecruitPreview:", json)
         if (json.isSuccess) setPosts(json.result.content)
-      } catch (e) {
-        console.error("🔥 fetch error in RecruitPreview:", e)
+      } catch (e: any) {
+        setError(e.message)
+      } finally {
+        setLoading(false)
+        // 데이터 로드 후 fade-in 트리거
+        setTimeout(() => setVisible(true), 50)
       }
     }
     fetchPosts()
   }, [])
 
+  if (loading) return <div className="text-center py-16 text-gray-500">로딩 중...</div>
+  if (error) return <div className="text-center py-16 text-red-500">{error}</div>
   if (posts.length === 0) return null
 
   return (
-    <section className="bg-white py-16 px-4">
+    <section
+      className={`bg-white py-16 px-4 transition-opacity duration-500 ${
+        visible ? "opacity-100" : "opacity-0"
+      }`}
+    >
       <div className="max-w-7xl mx-auto text-left">
-        <h2 className="text-3xl font-semibold text-[#292929] mb-6">🎸 지금 모집 중인 밴드</h2>
+        <h2 className="text-xl font-semibold text-[#2F3438] mb-1">🎸 지금 모집 중인 밴드</h2>
+        <h2 className="text-sm font-normal text-[#2F3438] mb-5"> 좋아하실 만한 모집을 보여드려요</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {posts.map((post) => (
             <Card key={post.id} className="max-w-sm shadow-md hover:shadow-lg transition">

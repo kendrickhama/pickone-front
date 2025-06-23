@@ -104,9 +104,8 @@ export default function ProfileSlider({
 
   const scroll = (direction: "left" | "right") => {
     if (sliderRef.current) {
-      const scrollAmount = 176 + 16 // 카드 너비(w-44 = 176px) + 간격(gap-4 = 16px)
+      const scrollAmount = 160 + 16 // w-40 (160px) + gap-4 (16px)
       const currentScroll = sliderRef.current.scrollLeft
-
       sliderRef.current.scrollTo({
         left: direction === "left" ? currentScroll - scrollAmount : currentScroll + scrollAmount,
         behavior: "smooth",
@@ -115,58 +114,57 @@ export default function ProfileSlider({
   }
 
   return (
-    <section className="container mx-auto px-4 py-12">
-      <h3 className="text-xl font-bold text-[#ff7f00] mb-4">{title}</h3>
-
-      <div className="relative">
-        {/* 좌우 버튼 */}
-        <button
-          onClick={() => scroll("left")}
-          className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow-md hover:shadow-lg px-2 py-2 rounded-full transition-shadow"
-        >
-          <ChevronLeft className="h-4 w-4 text-gray-700" />
-        </button>
-
-        <button
-          onClick={() => scroll("right")}
-          className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow-md hover:shadow-lg px-2 py-2 rounded-full transition-shadow"
-        >
-          <ChevronRight className="h-4 w-4 text-gray-700" />
-        </button>
-
-        {/* 슬라이더 */}
-        <div
-          ref={sliderRef}
-          className="flex overflow-x-auto gap-4 scroll-smooth pb-2 scrollbar-hide relative px-6"
-          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-        >
-          {profiles.map((profile, index) => (
-            <a
-              key={profile.id}
-              href={profile.link}
-              className="block flex-shrink-0 w-44 relative text-white hover:opacity-95 transition"
-            >
-              <div className="w-full h-56 overflow-hidden rounded-xl shadow-md relative">
-                <img
-                  className="w-full h-full object-cover transform hover:scale-105 transition duration-300"
-                  src={profile.image || "https://i.pinimg.com/736x/68/92/46/689246fedf6c075e402b3c3a2709ebcc.jpg"}
-                  alt={`${profile.name} 프로필 사진`}
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement
-                    target.src = "https://i.pinimg.com/736x/68/92/46/689246fedf6c075e402b3c3a2709ebcc.jpg"
-                  }}
-                />
-                <div className="absolute inset-0 bg-black/50 flex flex-col justify-end p-3 text-left">
-                  {showClickHint && index === 0 && <p className="text-sm font-bold mb-1">📌클릭시 프로필로 이동</p>}
-                  <p className="text-sm font-bold">{profile.name}</p>
-                  <p className="text-xs text-gray-100">
-                    {profile.instrument} · {profile.experience}
-                  </p>
-                  <p className="text-[10px] text-gray-300 mt-1">선호 장르: {profile.genres}</p>
+    <section className="bg-white py-12">
+      <div className="max-w-7xl mx-auto px-4">
+        <h3 className="text-xl font-bold text-[#ff7f00] mb-4">{title}</h3>
+        <div className="relative">
+          <button
+            onClick={() => scroll("left")}
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow-md hover:shadow-lg p-2 rounded-full transition-shadow"
+          >
+            <ChevronLeft className="h-5 w-5 text-gray-700" />
+          </button>
+          <button
+            onClick={() => scroll("right")}
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow-md hover:shadow-lg p-2 rounded-full transition-shadow"
+          >
+            <ChevronRight className="h-5 w-5 text-gray-700" />
+          </button>
+          <div
+            ref={sliderRef}
+            className="flex overflow-x-auto gap-4 scroll-smooth pb-2 scrollbar-hide"
+            style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+          >
+            {profiles.map((profile, index) => (
+              <a
+                key={profile.id}
+                href={profile.link}
+                className="block flex-shrink-0 w-40 relative text-white hover:opacity-95 transition"
+              >
+                <div className="w-full h-52 overflow-hidden rounded-xl shadow-md relative">
+                  <img
+                    src={profile.image}
+                    alt={`${profile.name} 프로필 사진`}
+                    className="w-full h-full object-cover transform hover:scale-105 transition duration-300"
+                    onError={(e) => {
+                      ;(e.target as HTMLImageElement).src =
+                        "https://i.pinimg.com/736x/68/92/46/689246fedf6c075e402b3c3a2709ebcc.jpg"
+                    }}
+                  />
+                  <div className="absolute inset-0 bg-black/50 flex flex-col justify-end p-3 text-left">
+                    {showClickHint && index === 0 && (
+                      <p className="text-xs font-bold mb-1">📌 클릭 시 프로필로 이동</p>
+                    )}
+                    <p className="text-sm font-bold">{profile.name}</p>
+                    <p className="text-xs text-gray-100">
+                      {profile.instrument} · {profile.experience}
+                    </p>
+                    <p className="text-[10px] text-gray-300 mt-1">장르: {profile.genres}</p>
+                  </div>
                 </div>
-              </div>
-            </a>
-          ))}
+              </a>
+            ))}
+          </div>
         </div>
       </div>
     </section>

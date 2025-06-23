@@ -9,7 +9,7 @@ import RecruitPreview from "@/components/recruit-preview"
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#FFFFFF]">
       <Navigation />
 
       {/* Hero Section - 네비게이션 높이만큼 패딩 추가 */}
