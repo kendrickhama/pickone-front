@@ -1,3 +1,4 @@
+// components/recruit-preview.tsx
 'use client'
 
 import Link from "next/link"
@@ -6,27 +7,41 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { Heart, Share2 } from "lucide-react"
 
+interface Post {
+  id: number
+  title: string
+  thumbnail: string | null
+  genres: { genre: string[] }
+  instruments: { instrument: string; proficiency: string }[]
+}
+
 export default function RecruitPreview() {
-  const [posts, setPosts] = useState([])
+  const [posts, setPosts] = useState<Post[]>([])
 
   useEffect(() => {
-    const fetchPosts = async () => {
-      const base = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:3000"
-      const res = await fetch(`${base}/api/recruitments?page=0&size=3`)
-      const json = await res.json()
-      if (json.isSuccess) setPosts(json.result.content)
+    async function fetchPosts() {
+      try {
+        // ✅ 상대경로만 사용
+        const res = await fetch(`/api/recruitments?page=0&size=3`)
+        if (!res.ok) throw new Error(`API 요청 실패: ${res.status}`)
+        const json = await res.json()
+        console.log("RecruitPreview:", json)
+        if (json.isSuccess) setPosts(json.result.content)
+      } catch (e) {
+        console.error("🔥 fetch error in RecruitPreview:", e)
+      }
     }
     fetchPosts()
   }, [])
 
-  if (!posts.length) return null
+  if (posts.length === 0) return null
 
   return (
     <section className="bg-white py-16 px-4">
       <div className="max-w-7xl mx-auto text-left">
         <h2 className="text-3xl font-semibold text-[#292929] mb-6">🎸 지금 모집 중인 밴드</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {posts.map((post: any) => (
+          {posts.map((post) => (
             <Card key={post.id} className="max-w-sm shadow-md hover:shadow-lg transition">
               <Link href={`/recruit/${post.id}`}>
                 <img
@@ -36,15 +51,14 @@ export default function RecruitPreview() {
                 />
                 <CardContent className="p-4">
                   <h3 className="font-semibold text-lg mb-2">{post.title}</h3>
-              
                   <div className="flex flex-wrap gap-2 mb-2">
-                    {post.genres.genre.map((g: string) => (
+                    {post.genres.genre.map((g) => (
                       <Badge key={g}>{g}</Badge>
                     ))}
                   </div>
                   <div className="flex flex-wrap gap-2 mb-2">
-                    {post.instruments.map((inst: any, idx: number) => (
-                      <Badge key={idx} variant="secondary" className="text-xs">
+                    {post.instruments.map((inst, i) => (
+                      <Badge key={i} variant="secondary" className="text-xs">
                         {inst.instrument.replace(/_/g, " ")}
                       </Badge>
                     ))}
