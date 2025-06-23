@@ -24,12 +24,9 @@ const instrumentOptions = [
 const proficiencyOptions = [
     "NEVER_PLAYED",
     "BEGINNER",
-    "BASIC",
     "INTERMEDIATE",
     "ADVANCED",
-    "SEMI_PRO",
-    "PROFESSIONAL",
-    "MASTER"
+    "EXPERT",
 ]
 const genreOptions = [
     "INDIE_ROCK",
@@ -182,8 +179,8 @@ export default function NewRecruitPage() {
                 },
             }
             const accessToken = localStorage.getItem("accessToken")
-
-            const res = await fetch("/api/recruitments", {
+            const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3000";
+            const res = await fetch(`${baseUrl}/api/recruitments`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
