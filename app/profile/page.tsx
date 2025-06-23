@@ -3,11 +3,11 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Edit, Save, MapPin, User, Settings, Info } from "lucide-react"
+import { Edit, Save, MapPin, User, Settings, Info, UserSearch } from "lucide-react"
 import Navigation from "@/components/navigation"
 import Footer from "@/components/footer"
 import { notFound } from "next/navigation"
-import { Calendar } from "lucide-react"
+import { Calendar, Search } from "lucide-react"
 
 interface ApiResponse {
   isSuccess: boolean
@@ -29,8 +29,6 @@ interface FollowResponse {
   message: string
   result: any[]
 }
-
-
 
 export default async function ProfilePage() {
   const res = await fetch("http://3.35.49.195:8080/api/users/1", { cache: "no-store" })
@@ -69,6 +67,32 @@ export default async function ProfilePage() {
       <Navigation />
 
       <main className="max-w-6xl mx-auto p-6 pt-20">
+        {/*검색 영역*/}
+        <section>
+          <div className="max-w-md mx-auto pb-2">
+            {/* <h2 className="text-xl font-semibold text-gray-800 mb-4">사용자 검색</h2> */}
+            <form action="/userSearch" method="get" className="flex space-x-2">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <input
+                  type="text"
+                  name="keyword"
+                  placeholder="닉네임 또는 이메일로 검색"
+                  className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-400"
+                />
+              </div>
+              <button
+                type="submit"
+                className="flex items-center justify-center bg-white border border-gray-300 text-gray-800 font-medium text-sm px-4 py-2 rounded-lg shadow-sm transition-shadow hover:shadow-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-400"
+              >
+                검색
+              </button>
+            </form>
+          </div>
+        </section>
+
+
+
         <Card className="flex flex-col md:flex-row bg-gradient-to-br from-white to-gray-50 border border-[#dadcdf] shadow-md rounded-sm overflow-hidden pt-6 pb-6">
           {/* 이미지 영역 */}
           <div className="w-40 h-40 bg-gray-100 flex items-center justify-center p-2 rounded-full overflow-hidden border border-gray-200 ml-8">
