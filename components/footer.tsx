@@ -2,7 +2,7 @@ import Link from "next/link"
 
 export default function Footer() {
   return (
-    <footer className="mt-2 bg-gray-100 text-amber-900 text-sm border-orange-100">
+    <footer className="mt-2 bg-[#F7F7FA] text-amber-900 text-sm border-orange-100">
       <div className="container mx-auto px-4 py-6">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           {/* 브랜드 섹션 */}

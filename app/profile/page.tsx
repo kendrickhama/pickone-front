@@ -24,6 +24,13 @@ interface ApiResponse {
   }
 }
 
+interface FollowResponse {
+  isSuccess: boolean
+  message: string
+  result: any[]
+}
+
+
 
 export default async function ProfilePage() {
   const res = await fetch("http://3.35.49.195:8080/api/users/1", { cache: "no-store" })
@@ -32,6 +39,24 @@ export default async function ProfilePage() {
   if (!data.isSuccess) return notFound()
 
   const { email, nickname, profileImageUrl, isPublic, role, bio = "", location = "" } = data.result
+
+  // 2) 팔로잉 수
+  const followingsRes = await fetch(
+    `http://3.35.49.195:8080/api/follows/1/followings`,
+    { cache: "no-store" }
+  )
+  const followingsJson: FollowResponse = await followingsRes.json()
+  const followingCount = followingsJson.isSuccess ? followingsJson.result.length : 0
+
+  // 3) 팔로워 수
+  const followersRes = await fetch(
+    `http://3.35.49.195:8080/api/follows/1/followers`,
+    { cache: "no-store" }
+  )
+  const followersJson: FollowResponse = await followersRes.json()
+  const followerCount = followersJson.isSuccess ? followersJson.result.length : 0
+
+
 
   // 가짜 공연 이력 데이터
   const fakePerformances = [
@@ -46,7 +71,7 @@ export default async function ProfilePage() {
       <main className="max-w-6xl mx-auto p-6 pt-20">
         <Card className="flex flex-col md:flex-row bg-gradient-to-br from-white to-gray-50 border border-[#dadcdf] shadow-md rounded-sm overflow-hidden pt-6 pb-6">
           {/* 이미지 영역 */}
-          <div className="w-48 h-48 bg-gray-100 flex items-center justify-center p-2 rounded-full overflow-hidden border border-gray-200 ml-8">
+          <div className="w-40 h-40 bg-gray-100 flex items-center justify-center p-2 rounded-full overflow-hidden border border-gray-200 ml-8">
             <img
               src={profileImageUrl || "/default-avatar.png"}
               alt={nickname}
@@ -61,8 +86,10 @@ export default async function ProfilePage() {
               <div className="flex-1 space-y-2">
                 <h1 className="text-3xl font-bold text-[#292929]">{nickname}</h1>
                 <p className="text-gray-500">{email}</p>
-                <p className="text-gray-500">
-                  팔로워 <span className="font-medium text-[#292929]">360</span> | 팔로잉 <span className="font-medium text-[#292929]">281</span>
+                <p className="text-[#828C94]">
+                  팔로워 <span className="font-semibold text-[#2F3438]">{followerCount}</span>
+                  {" | "}
+                  팔로잉 <span className="font-semibold text-[#2F3438]">{followingCount}</span>
                 </p>
                 <div className="flex flex-wrap gap-2">
                   <Badge variant="secondary">{role}</Badge>
@@ -82,14 +109,14 @@ export default async function ProfilePage() {
                   <p className="text-gray-500 italic">자기소개가 없습니다.</p>
                 )}
                 {/* SNS 링크 */}
-                <div className="flex flex-col space-y-1">
-                  <a href="https://facebook.com/fake" target="_blank" rel="noreferrer" className="text-blue-500 hover:underline">
+                <div className="flex flex-col space-y-1 text-[#0AA5FF]">
+                  <a href="https://facebook.com/fake" target="_blank" rel="noreferrer" className=" hover:underline">
                     Facebook
                   </a>
-                  <a href="https://twitter.com/fake" target="_blank" rel="noreferrer" className="text-blue-500 hover:underline">
+                  <a href="https://twitter.com/fake" target="_blank" rel="noreferrer" className=" hover:underline">
                     Twitter
                   </a>
-                  <a href="https://instagram.com/fake" target="_blank" rel="noreferrer" className="text-blue-500 hover:underline">
+                  <a href="https://instagram.com/fake" target="_blank" rel="noreferrer" className=" hover:underline">
                     Instagram
                   </a>
                 </div>
@@ -113,7 +140,7 @@ export default async function ProfilePage() {
           <img src="https://i.scdn.co/image/ab67616d0000b2733ed60b59aaa75ed572d7fc30" alt="Album 5" className="w-48 h-48 object-cover rounded" />
         </div>
 
-        
+
 
         <div className="mt-8">
           <h2 className="text-2xl font-semibold text-gray-800 mb-4">공연 이력</h2>
