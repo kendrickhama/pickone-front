@@ -8,6 +8,7 @@ import Navigation from "@/components/navigation"
 import Footer from "@/components/footer"
 import { notFound } from "next/navigation"
 import { Calendar, Search } from "lucide-react"
+import Link from "next/link"
 
 interface ApiResponse {
   isSuccess: boolean
@@ -110,11 +111,22 @@ export default async function ProfilePage() {
               <div className="flex-1 space-y-2">
                 <h1 className="text-3xl font-bold text-[#292929]">{nickname}</h1>
                 <p className="text-gray-500">{email}</p>
-                <p className="text-[#828C94]">
-                  팔로워 <span className="font-semibold text-[#2F3438]">{followerCount}</span>
-                  {" | "}
-                  팔로잉 <span className="font-semibold text-[#2F3438]">{followingCount}</span>
+                <p className="text-[#828C94] flex items-center space-x-2">
+                  <Link
+                    href="/followers"
+                    className="hover:text-[#c4cfd9] transition-colors"
+                  >
+                    팔로워 <span className="font-semibold text-[#2F3438]">{followerCount}</span>
+                  </Link>
+                  <span>│</span>
+                  <Link
+                    href="/followings"
+                    className="hover:text-[#c4cfd9] transition-colors"
+                  >
+                    팔로잉 <span className="font-semibold text-[#2F3438]">{followingCount}</span>
+                  </Link>
                 </p>
+
                 <div className="flex flex-wrap gap-2">
                   <Badge variant="secondary">{role}</Badge>
                   <Badge variant="secondary">{isPublic ? "공개" : "비공개"}</Badge>
@@ -156,12 +168,32 @@ export default async function ProfilePage() {
           </CardContent>
         </Card>
         <p className="text-[#292929] pt-4 font-semibold text-xl">Top 5 Album</p>
-        <div className="flex space-x-8 pt-4 ml-2">
-          <img src="https://i.scdn.co/image/ab67616d0000b2733303a842ee1bc0b23204333d" alt="Album 1" className="w-48 h-48 object-cover rounded" />
-          <img src="https://i.scdn.co/image/ab67616d0000b2739293c743fa542094336c5e12" alt="Album 2" className="w-48 h-48 object-cover rounded" />
-          <img src="https://i.scdn.co/image/ab67616d0000b27304f4a7915e062a1282289073" alt="Album 3" className="w-48 h-48 object-cover rounded" />
-          <img src="https://i.scdn.co/image/ab67616d0000b273ea7caaff71dea1051d49b2fe" alt="Album 4" className="w-48 h-48 object-cover rounded" />
-          <img src="https://i.scdn.co/image/ab67616d0000b2733ed60b59aaa75ed572d7fc30" alt="Album 5" className="w-48 h-48 object-cover rounded" />
+        <div className="flex flex-col space-y-4 pt-4 ml-2 md:flex-row md:space-x-8 md:space-y-0 md:ml-2">
+          <img
+            src="https://i.scdn.co/image/ab67616d0000b2733303a842ee1bc0b23204333d"
+            alt="Album 1"
+            className="w-full md:w-48 h-48 object-cover rounded"
+          />
+          <img
+            src="https://i.scdn.co/image/ab67616d0000b2739293c743fa542094336c5e12"
+            alt="Album 2"
+            className="w-full md:w-48 h-48 object-cover rounded"
+          />
+          <img
+            src="https://i.scdn.co/image/ab67616d0000b27304f4a7915e062a1282289073"
+            alt="Album 3"
+            className="w-full md:w-48 h-48 object-cover rounded"
+          />
+          <img
+            src="https://i.scdn.co/image/ab67616d0000b273ea7caaff71dea1051d49b2fe"
+            alt="Album 4"
+            className="w-full md:w-48 h-48 object-cover rounded"
+          />
+          <img
+            src="https://i.scdn.co/image/ab67616d0000b2733ed60b59aaa75ed572d7fc30"
+            alt="Album 5"
+            className="w-full md:w-48 h-48 object-cover rounded"
+          />
         </div>
 
 
@@ -240,7 +272,6 @@ export default async function ProfilePage() {
           </TabsContent>
         </Tabs>
       </main>
-
       <Footer />
     </div>
   )
