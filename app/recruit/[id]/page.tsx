@@ -6,6 +6,7 @@ import Navigation from "@/components/navigation";
 import Footer from "@/components/footer";
 import { Eye, Heart, Share2 } from "lucide-react";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 interface RecruitDetail {
     id: number;
@@ -129,6 +130,12 @@ export default async function RecruitDetailPage({ params }: PageProps) {
                             <button className="flex items-center text-blue-500 hover:text-blue-700">
                                 <Share2 className="mr-1" /> 공유
                             </button>
+                        </div>
+                        {/* 신청하기 버튼 */}
+                        <div className="mt-4">
+                            <Link href={`/recruit/${id}/apply`}>
+                                <Button className="w-full">신청하기</Button>
+                            </Link>
                         </div>
                     </CardContent>
                 </Card>
