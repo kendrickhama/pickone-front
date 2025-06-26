@@ -66,7 +66,7 @@ export default function RecruitApplyPage() {
     const token = localStorage.getItem('accessToken')  // 로그인 때 저장해 둔 JWT
 
     const base = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:3000";
-    const res = await fetch(`${base}/api/recruitments/apply/${recruitmentId}`, {
+    const res = await fetch("/api/recruitments/apply/${recruitmentId}", {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
