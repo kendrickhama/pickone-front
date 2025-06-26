@@ -16,17 +16,26 @@ const instrumentOptions = [
     "ACOUSTIC_GUITAR",
     "ELECTRIC_GUITAR",
     "BASS",
-    "DRUM",
+    "DRUMS",
+    "PERCUSSION",
     "KEYBOARD",
-    "VOCAL",
+    "SYNTHESIZER",
+    "VOCALS",
+    "VIOLIN",
+    "SAXOPHONE",
+    "TRUMPET",
+    "FLUTE"
     // 필요시 추가
 ]
 const proficiencyOptions = [
     "NEVER_PLAYED",
     "BEGINNER",
+    "BASIC",
     "INTERMEDIATE",
     "ADVANCED",
-    "EXPERT",
+    "SEMI_PRO",
+    "PROFESSIONAL",
+    "MASTER"
 ]
 const genreOptions = [
     "INDIE_ROCK",
