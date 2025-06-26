@@ -61,7 +61,7 @@ export default function RecruitApplyPage() {
       thumbnail: thumbnailInput,
       mbti: selectedMbti,
       instrument: selectedInstrument,
-      proficiency,
+      proficiency
     };
     const token = localStorage.getItem('accessToken')  // 로그인 때 저장해 둔 JWT
 
