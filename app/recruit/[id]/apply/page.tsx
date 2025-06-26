@@ -18,8 +18,8 @@ interface RecruitDetail {
 }
 
 const MBTI_OPTIONS = [
-  'INTJ','INTP','ENTJ','ENTP','INFJ','INFP','ENFJ','ENFP',
-  'ISTJ','ISFJ','ESTJ','ESFJ','ISTP','ISFP','ESTP','ESFP'
+  'INTJ', 'INTP', 'ENTJ', 'ENTP', 'INFJ', 'INFP', 'ENFJ', 'ENFP',
+  'ISTJ', 'ISFJ', 'ESTJ', 'ESFJ', 'ISTP', 'ISFP', 'ESTP', 'ESFP'
 ];
 
 export default function RecruitApplyPage() {
@@ -59,19 +59,28 @@ export default function RecruitApplyPage() {
       message,
       portfolioUrl,
       thumbnail: thumbnailInput,
-      appInstrument: selectedInstrument,
       mbti: selectedMbti,
       instrument: selectedInstrument,
       proficiency,
     };
+    const token = localStorage.getItem('accessToken')  // 로그인 때 저장해 둔 JWT
 
-    const res = await fetch(`/api/recruitments/apply/${recruitmentId}`, {
+    const base = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:3000";
+    const res = await fetch(`${base}/api/recruitments/apply/${recruitmentId}`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
       body: JSON.stringify(body),
     });
 
-    if (res.ok) router.push(`/recruit/${recruitmentId}`);
+    if (res.ok) {
+      // 1) 성공 메시지 띄우기
+      alert('✔️ 신청이 정상적으로 완료되었습니다!');
+      // 2) 상세 페이지로 이동
+      router.push(`/recruit/${recruitmentId}`);
+    }
     else alert('신청에 실패했습니다.');
   }
 

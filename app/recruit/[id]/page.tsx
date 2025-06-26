@@ -32,8 +32,8 @@ export default async function RecruitDetailPage({ params }: PageProps) {
     const { id } = await params;
 
     // ② 절대 URL 사용 (환경변수 또는 host 헤더 활용)
-    const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3000";
-    const res = await fetch(`${baseUrl}/api/recruitments/${id}`, {
+    const base = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:3000";
+    const res = await fetch(`${base}/api/recruitments/${id}`, {
         cache: "no-store",
     });
     if (!res.ok) return notFound();
