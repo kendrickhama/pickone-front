@@ -20,6 +20,7 @@ export default function Navigation() {
     localStorage.removeItem("accessToken")
     localStorage.removeItem("refreshToken")
     localStorage.removeItem("email")
+    localStorage.removeItem("userId")
     setEmail(null)
     router.push("/") // 홈으로 이동
   }
