@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
+import { Bell } from "lucide-react"
 
 export default function Navigation() {
   const pathname = usePathname()
@@ -43,18 +44,30 @@ export default function Navigation() {
 
           {/* PC 메뉴 */}
           <div className="font-semibold hidden md:flex items-center space-x-8">
-            {navItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  "text-gray-600 hover:text-gray-900 transition-colors font-medium",
-                  // pathname === item.href && "text-gray-900"
-                )}
+            {navItems.map((item) => {
+              // '/profile' 은 로그인된 상태에서만 보여줌
+              if (item.href === "/profile" && !email) return null;
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={cn(
+                    "text-gray-600 hover:text-gray-900 transition-colors font-medium",
+                  )}
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
+            {email && (
+              <button
+                onClick={() => router.push("/notifications")}
+                className="text-gray-600 hover:text-gray-900 transition-colors"
+                aria-label="알림 보기"
               >
-                {item.label}
-              </Link>
-            ))}
+                <Bell className="w-5 h-5" />
+              </button>
+            )}
 
             {email ? (
               <div className="flex items-center space-x-3">
@@ -81,18 +94,21 @@ export default function Navigation() {
 
           {/* 모바일 메뉴 */}
           <div className="md:hidden flex items-center space-x-2">
-            {navItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  "text-sm text-gray-600 hover:text-gray-900 transition-colors",
-                  pathname === item.href && "text-gray-900 font-medium"
-                )}
-              >
-                {item.label}
-              </Link>
-            ))}
+            {navItems.map((item) => {
+              if (item.href === "/profile" && !email) return null;
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={cn(
+                    "text-sm text-gray-600 hover:text-gray-900 transition-colors",
+                    pathname === item.href && "text-gray-900 font-medium"
+                  )}
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
           </div>
         </div>
       </div>
