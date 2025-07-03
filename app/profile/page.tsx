@@ -57,9 +57,9 @@ export default function ProfilePage() {
         return
       }
       const [res, fRes, foRes] = await Promise.all([
-        fetch(`http://3.35.49.195:8080/api/users/${id}`, { cache: "no-store" }),
-        fetch(`http://3.35.49.195:8080/api/follows/${id}/followings`, { cache: "no-store" }),
-        fetch(`http://3.35.49.195:8080/api/follows/${id}/followers`, { cache: "no-store" }),
+        fetch(`/api/users/${id}`, { cache: "no-store" }),
+        fetch(`/api/follows/${id}/followings`, { cache: "no-store" }),
+        fetch(`/api/follows/${id}/followers`, { cache: "no-store" }),
       ])
       if (!res.ok) return notFound()
       const json: ApiResponse = await res.json()
