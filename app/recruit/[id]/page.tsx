@@ -46,8 +46,8 @@ export default async function RecruitDetailPage({ params }: PageProps) {
     return (
         <div className="min-h-screen bg-gray-50">
             <Navigation />
-            <main className="container mx-auto px-4 py-8 pt-24">
-                <Card className="overflow-hidden">
+            <main className="container mx-auto max-w-4xl px-4 py-8 pt-24">
+                <Card className="overflow-hidden max-w-4xl">
                     {post.thumbnail && (
                         <img
                             src={post.thumbnail}
@@ -106,16 +106,18 @@ export default async function RecruitDetailPage({ params }: PageProps) {
                             </ul>
                         </div>
 
-                        {/* SNS Link */}
+                        {/* SNS Embed Preview */}
                         {post.snsLink && (
                             <div className="mb-6">
-                                <Link
-                                    href={post.snsLink}
-                                    target="_blank"
-                                    className="text-orange-600 hover:underline"
-                                >
-                                    🔗 SNS 바로가기
-                                </Link>
+                                <div className="aspect-w-16 aspect-h-9 rounded-lg overflow-hidden border">
+                                    <iframe
+                                        src={post.snsLink}
+                                        className="w-full h-full"
+                                        frameBorder="0"
+                                        allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+                                        allowFullScreen
+                                    />
+                                </div>
                             </div>
                         )}
 
