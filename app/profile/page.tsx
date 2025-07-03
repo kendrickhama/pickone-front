@@ -8,8 +8,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Edit, Save, MapPin, User, Settings, Info, UserSearch } from "lucide-react"
 import Navigation from "@/components/navigation"
 import Footer from "@/components/footer"
-import { useRouter,notFound } from "next/navigation"
-import { Calendar, Search } from "lucide-react"
+import { useRouter, notFound } from "next/navigation"
+import { Calendar, Search,Music,Heart} from "lucide-react"
 import Link from "next/link"
 import { useEffect, useState } from "react"
 
@@ -20,6 +20,9 @@ interface ApiResponse {
     id: number
     email: string
     nickname: string
+    mbti: string
+    preference: string
+    instruments: string
     profileImageUrl: string | null
     isPublic: boolean
     role: string
@@ -50,28 +53,28 @@ export default function ProfilePage() {
     const id = localStorage.getItem("userId")
     if (id) setCurrentUserId(Number(id))
 
-    // 2-2) 프로필 + 팔로우 데이터 fetch
-    ;(async () => {
-      if (!id) {
-        notFound()
-        return
-      }
-      const [res, fRes, foRes] = await Promise.all([
-        fetch(`/api/users/${id}`, { cache: "no-store" }),
-        fetch(`/api/follows/${id}/followings`, { cache: "no-store" }),
-        fetch(`/api/follows/${id}/followers`, { cache: "no-store" }),
-      ])
-      if (!res.ok) return notFound()
-      const json: ApiResponse = await res.json()
-      if (!json.isSuccess) return notFound()
-      setUserData(json.result)
+      // 2-2) 프로필 + 팔로우 데이터 fetch
+      ; (async () => {
+        if (!id) {
+          notFound()
+          return
+        }
+        const [res, fRes, foRes] = await Promise.all([
+          fetch(`/api/users/${id}`, { cache: "no-store" }),
+          fetch(`/api/follows/${id}/followings`, { cache: "no-store" }),
+          fetch(`/api/follows/${id}/followers`, { cache: "no-store" }),
+        ])
+        if (!res.ok) return notFound()
+        const json: ApiResponse = await res.json()
+        if (!json.isSuccess) return notFound()
+        setUserData(json.result)
 
-      const fJson: FollowResponse = await fRes.json()
-      setFollowingCount(fJson.isSuccess ? fJson.result.length : 0)
+        const fJson: FollowResponse = await fRes.json()
+        setFollowingCount(fJson.isSuccess ? fJson.result.length : 0)
 
-      const foJson: FollowResponse = await foRes.json()
-      setFollowerCount(foJson.isSuccess ? foJson.result.length : 0)
-    })()
+        const foJson: FollowResponse = await foRes.json()
+        setFollowerCount(foJson.isSuccess ? foJson.result.length : 0)
+      })()
   }, [])
 
   if (!userData) {
@@ -84,6 +87,9 @@ export default function ProfilePage() {
   const {
     email,
     nickname,
+    mbti,
+    instruments,
+    preference,
     profileImageUrl,
     isPublic,
     role,
@@ -146,6 +152,43 @@ export default function ProfilePage() {
               <div className="flex-1 space-y-2">
                 <h1 className="text-3xl font-bold text-[#292929]">{nickname}</h1>
                 <p className="text-gray-500">{email}</p>
+                <div className="flex flex-wrap items-center gap-2 text-sm text-gray-600">
+                  {/* MBTI */}
+                  <Badge variant="outline" className="flex items-center space-x-1">
+                    <User className="w-4 h-4" />
+                    <span>{mbti}</span>
+                  </Badge>
+
+                  {/* Instruments */}
+                  {Array.isArray(instruments) && instruments.length > 0 ? (
+                    instruments.map(inst => (
+                      <Badge
+                        key={inst}
+                        variant="secondary"
+                        className="flex items-center space-x-1"
+                      >
+                        <Music className="w-4 h-4" />
+                        <span>{inst}</span>
+                      </Badge>
+                    ))
+                  ) : (
+                    <span className="italic text-gray-800 flex items-center space-x-1">
+                      <Music className="w-4 h-4" />
+                      <span>관객</span>
+                    </span>
+                  )}
+
+                  {/* Preference (Primary Genre) */}
+                  {preference && (
+                    <Badge
+                      variant="destructive"
+                      className="flex items-center space-x-1"
+                    >
+                      <Heart className="w-4 h-4" />
+                      <span>{preference}</span>
+                    </Badge>
+                  )}
+                </div>
                 <p className="text-[#828C94] flex items-center space-x-2">
                   <Link
                     href="/followers"
@@ -163,7 +206,6 @@ export default function ProfilePage() {
                 </p>
 
                 <div className="flex flex-wrap gap-2">
-                  <Badge variant="secondary">{role}</Badge>
                   <Badge variant="secondary">{isPublic ? "공개" : "비공개"}</Badge>
                 </div>
               </div>
@@ -214,8 +256,8 @@ export default function ProfilePage() {
             ) : (
               // 주인이 아닌 경우: 팔로우 토글 버튼
               <div className="mt-4">
-                <Button onClick={() => {/* 팔로우/언팔로우 로직 */}}>
-                  { /* isFollowing 상태에 따라 */ "팔로우" }
+                <Button onClick={() => {/* 팔로우/언팔로우 로직 */ }}>
+                  { /* isFollowing 상태에 따라 */ "팔로우"}
                 </Button>
               </div>
             )}
