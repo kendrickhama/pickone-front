@@ -1,3 +1,5 @@
+"use client"
+
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -6,9 +8,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Edit, Save, MapPin, User, Settings, Info, UserSearch } from "lucide-react"
 import Navigation from "@/components/navigation"
 import Footer from "@/components/footer"
-import { notFound } from "next/navigation"
+import { useRouter,notFound } from "next/navigation"
 import { Calendar, Search } from "lucide-react"
 import Link from "next/link"
+import { useEffect, useState } from "react"
 
 interface ApiResponse {
   isSuccess: boolean
@@ -31,30 +34,62 @@ interface FollowResponse {
   result: any[]
 }
 
-export default async function ProfilePage() {
-  const res = await fetch("http://3.35.49.195:8080/api/users/1", { cache: "no-store" })
-  if (!res.ok) return notFound()
-  const data: ApiResponse = await res.json()
-  if (!data.isSuccess) return notFound()
+export default function ProfilePage() {
+  const router = useRouter()
 
-  const { email, nickname, profileImageUrl, isPublic, role, bio = "", location = "" } = data.result
+  // 1) 로그인한 유저 ID
+  const [currentUserId, setCurrentUserId] = useState<number | null>(null)
 
-  // 2) 팔로잉 수
-  const followingsRes = await fetch(
-    `http://3.35.49.195:8080/api/follows/1/followings`,
-    { cache: "no-store" }
-  )
-  const followingsJson: FollowResponse = await followingsRes.json()
-  const followingCount = followingsJson.isSuccess ? followingsJson.result.length : 0
+  // 2) API로 받아온 프로필 정보
+  const [userData, setUserData] = useState<ApiResponse["result"] | null>(null)
+  const [followingCount, setFollowingCount] = useState(0)
+  const [followerCount, setFollowerCount] = useState(0)
 
-  // 3) 팔로워 수
-  const followersRes = await fetch(
-    `http://3.35.49.195:8080/api/follows/1/followers`,
-    { cache: "no-store" }
-  )
-  const followersJson: FollowResponse = await followersRes.json()
-  const followerCount = followersJson.isSuccess ? followersJson.result.length : 0
+  useEffect(() => {
+    // 2-1) localStorage에서 userId 꺼내기
+    const id = localStorage.getItem("userId")
+    if (id) setCurrentUserId(Number(id))
 
+    // 2-2) 프로필 + 팔로우 데이터 fetch
+    ;(async () => {
+      if (!id) {
+        notFound()
+        return
+      }
+      const [res, fRes, foRes] = await Promise.all([
+        fetch(`http://3.35.49.195:8080/api/users/${id}`, { cache: "no-store" }),
+        fetch(`http://3.35.49.195:8080/api/follows/${id}/followings`, { cache: "no-store" }),
+        fetch(`http://3.35.49.195:8080/api/follows/${id}/followers`, { cache: "no-store" }),
+      ])
+      if (!res.ok) return notFound()
+      const json: ApiResponse = await res.json()
+      if (!json.isSuccess) return notFound()
+      setUserData(json.result)
+
+      const fJson: FollowResponse = await fRes.json()
+      setFollowingCount(fJson.isSuccess ? fJson.result.length : 0)
+
+      const foJson: FollowResponse = await foRes.json()
+      setFollowerCount(foJson.isSuccess ? foJson.result.length : 0)
+    })()
+  }, [])
+
+  if (!userData) {
+    return <div>로딩 중...</div>
+  }
+
+  // 3) 주인 여부 플래그
+  const isOwner = currentUserId === userData.id
+
+  const {
+    email,
+    nickname,
+    profileImageUrl,
+    isPublic,
+    role,
+    bio = "",
+    location = "",
+  } = userData
 
 
   // 가짜 공연 이력 데이터
@@ -158,6 +193,32 @@ export default async function ProfilePage() {
                 </div>
               </div>
             </div>
+            {isOwner ? (
+              // 주인인 경우: 수정/삭제 버튼
+              <div className="mt-4 flex space-x-2">
+                <Button
+                  variant="outline"
+                  onClick={() => router.push("/profile/edit")}
+                >
+                  프로필 수정
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={() => {
+                    /* 계정 삭제 로직 */
+                  }}
+                >
+                  계정 삭제
+                </Button>
+              </div>
+            ) : (
+              // 주인이 아닌 경우: 팔로우 토글 버튼
+              <div className="mt-4">
+                <Button onClick={() => {/* 팔로우/언팔로우 로직 */}}>
+                  { /* isFollowing 상태에 따라 */ "팔로우" }
+                </Button>
+              </div>
+            )}
             {bio && <p className="text-gray-700">{bio}</p>}
             {location && (
               <div className="flex items-center text-gray-600">

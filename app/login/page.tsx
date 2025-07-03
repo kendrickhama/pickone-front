@@ -58,6 +58,7 @@ export default function LoginPage() {
       localStorage.setItem("accessToken", data.result.accessToken)
       localStorage.setItem("refreshToken", data.result.refreshToken)
       localStorage.setItem("email", email)
+      localStorage.setItem("userId", data.result.userId)  
       router.push("/")
 
     } catch (e: any) {
