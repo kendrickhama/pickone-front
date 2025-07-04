@@ -5,11 +5,10 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Edit, Save, MapPin, User, Settings, Info, UserSearch } from "lucide-react"
+import { Edit, Save, MapPin, User, Settings, Info, UserSearch, Music, Search, Calendar, Heart, Share2 } from "lucide-react"
 import Navigation from "@/components/navigation"
 import Footer from "@/components/footer"
 import { useRouter, notFound } from "next/navigation"
-import { Calendar, Search, Music, Heart } from "lucide-react"
 import Link from "next/link"
 import { useEffect, useState } from "react"
 
@@ -52,6 +51,9 @@ export default function ProfilePage() {
   const [userData, setUserData] = useState<ApiResponse["result"] | null>(null)
   const [followingCount, setFollowingCount] = useState(0)
   const [followerCount, setFollowerCount] = useState(0)
+  // 내가 쓴 모집글
+  const [myRecruits, setMyRecruits] = useState<any[]>([])
+  const [recruitsLoading, setRecruitsLoading] = useState(true)
 
   useEffect(() => {
     // 2-1) localStorage에서 userId 꺼내기
@@ -82,8 +84,25 @@ export default function ProfilePage() {
       })()
   }, [])
 
+  // 내가 쓴 모집글 fetch
+  useEffect(() => {
+    if (!currentUserId) return
+    setRecruitsLoading(true)
+    fetch(`/api/recruitments?userId=${currentUserId}`)
+      .then(res => res.json())
+      .then(json => {
+        if (json.isSuccess && json.result && json.result.content) {
+          setMyRecruits(json.result.content)
+        } else {
+          setMyRecruits([])
+        }
+      })
+      .catch(() => setMyRecruits([]))
+      .finally(() => setRecruitsLoading(false))
+  }, [currentUserId])
+
   if (!userData) {
-    return <div>로딩 중...</div>
+    return
   }
 
   // 3) 주인 여부 플래그
@@ -111,64 +130,64 @@ export default function ProfilePage() {
   ];
 
   const genreColorMap: Record<string, string> = {
-  INDIE_ROCK:       'text-indigo-600',
-  ALTERNATIVE_ROCK: 'text-blue-600',
-  HARD_ROCK:        'text-gray-800',
-  POST_ROCK:        'text-purple-600',
-  SHOEGAZING:       'text-pink-600',
-  HEAVY_METAL:      'text-red-700',
-  PUNK_ROCK:        'text-yellow-700',
-  GRUNGE:           'text-green-800',
-  PROGRESSIVE_ROCK: 'text-blue-800',
-  GARAGE_ROCK:      'text-yellow-800',
-  CLASSIC_ROCK:     'text-gray-600',
+    INDIE_ROCK: 'text-indigo-600',
+    ALTERNATIVE_ROCK: 'text-blue-600',
+    HARD_ROCK: 'text-gray-800',
+    POST_ROCK: 'text-purple-600',
+    SHOEGAZING: 'text-pink-600',
+    HEAVY_METAL: 'text-red-700',
+    PUNK_ROCK: 'text-yellow-700',
+    GRUNGE: 'text-green-800',
+    PROGRESSIVE_ROCK: 'text-blue-800',
+    GARAGE_ROCK: 'text-yellow-800',
+    CLASSIC_ROCK: 'text-gray-600',
 
-  DEATH_METAL:      'text-gray-900',
-  BLACK_METAL:      'text-black',
-  THRASH_METAL:     'text-red-800',
-  DOOM_METAL:       'text-gray-700',
+    DEATH_METAL: 'text-gray-900',
+    BLACK_METAL: 'text-black',
+    THRASH_METAL: 'text-red-800',
+    DOOM_METAL: 'text-gray-700',
 
-  FOLK:             'text-teal-700',
-  FOLK_ROCK:        'text-green-600',
-  ACOUSTIC:         'text-amber-600',
+    FOLK: 'text-teal-700',
+    FOLK_ROCK: 'text-green-600',
+    ACOUSTIC: 'text-amber-600',
 
-  JAZZ:             'text-teal-600',
-  SMOOTH_JAZZ:      'text-blue-400',
-  FUSION_JAZZ:      'text-indigo-500',
-  LOFI_JAZZ:        'text-gray-400',
+    JAZZ: 'text-teal-600',
+    SMOOTH_JAZZ: 'text-blue-400',
+    FUSION_JAZZ: 'text-indigo-500',
+    LOFI_JAZZ: 'text-gray-400',
 
-  POP:              'text-pink-500',
-  DREAM_POP:        'text-pink-400',
-  SYNTH_POP:        'text-purple-500',
-  ELECTRO_POP:      'text-purple-400',
+    POP: 'text-pink-500',
+    DREAM_POP: 'text-pink-400',
+    SYNTH_POP: 'text-purple-500',
+    ELECTRO_POP: 'text-purple-400',
 
-  HIPHOP:           'text-yellow-600',
-  LOFI:             'text-gray-500',
-  EDM:              'text-indigo-500',
-  AMBIENT:          'text-emerald-600',
-  HOUSE:            'text-amber-500',
-  TECHNO:           'text-cyan-600',
-  TRANCE:           'text-violet-500',
+    HIPHOP: 'text-yellow-600',
+    LOFI: 'text-gray-500',
+    EDM: 'text-indigo-500',
+    AMBIENT: 'text-emerald-600',
+    HOUSE: 'text-amber-500',
+    TECHNO: 'text-cyan-600',
+    TRANCE: 'text-violet-500',
 
-  BLUES:            'text-blue-700',
-  SOUL:             'text-red-500',
-  RNB:              'text-purple-700',
+    BLUES: 'text-blue-700',
+    SOUL: 'text-red-500',
+    RNB: 'text-purple-700',
 
-  CLASSICAL:        'text-gray-500',
-  FUNK:             'text-orange-600',
-  REGGAE:           'text-green-700',
-  WORLD_MUSIC:      'text-emerald-500',
-  EXPERIMENTAL:     'text-fuchsia-500',
-  POST_PUNK:        'text-rose-600',
-  MATH_ROCK:        'text-lime-700',
-  GOSPEL:           'text-yellow-500',
-}
+    CLASSICAL: 'text-gray-500',
+    FUNK: 'text-orange-600',
+    REGGAE: 'text-green-700',
+    WORLD_MUSIC: 'text-emerald-500',
+    EXPERIMENTAL: 'text-fuchsia-500',
+    POST_PUNK: 'text-rose-600',
+    MATH_ROCK: 'text-lime-700',
+    GOSPEL: 'text-yellow-500',
+  }
 
   return (
     <div className="min-h-screen bg-[#FFFFFF]">
       <Navigation />
 
-      <main className="max-w-6xl mx-auto p-6 pt-20">
+      <main className="max-w-7xl mx-auto px-4 pt-20">
         {/*검색 영역*/}
         <section>
           <div className="max-w-md mx-auto pb-2">
@@ -193,151 +212,112 @@ export default function ProfilePage() {
           </div>
         </section>
 
-
-
-        <Card className="flex flex-col md:flex-row bg-gradient-to-br from-white to-gray-50 border border-[#dadcdf] shadow-md rounded-sm overflow-hidden pt-6 pb-6">
-          {/* 이미지 영역 */}
-          <div className="w-40 h-40 bg-gray-100 flex items-center justify-center p-2 rounded-full overflow-hidden border border-gray-200 ml-8">
-            <img
-              src={profileImageUrl || "/default-avatar.png"}
-              alt={nickname}
-              className="w-full h-full object-cover "
-            />
-          </div>
-
-          {/* 내용 영역 */}
-          <CardContent className="flex-1 p-6 space-y-4">
-            <div className="flex items-start space-x-6">
-              {/* 왼쪽: 닉네임 / 이메일 / 뱃지 */}
-              <div className="flex-1 space-y-2">
-                <h1 className="text-3xl font-bold text-[#292929]">{nickname}</h1>
-                <p className="text-gray-500">{email}</p>
-                <p className="text-[#828C94] flex items-center space-x-2">
-                  <Link
-                    href="/followers"
-                    className="hover:text-[#c4cfd9] transition-colors"
-                  >
-                    팔로워 <span className="font-semibold text-[#2F3438]">{followerCount}</span>
-                  </Link>
-                  <span>│</span>
-                  <Link
-                    href="/followings"
-                    className="hover:text-[#c4cfd9] transition-colors"
-                  >
-                    팔로잉 <span className="font-semibold text-[#2F3438]">{followingCount}</span>
-                  </Link>
-                </p>
-                <div className="flex flex-wrap items-center gap-2 text-sm text-gray-600">
-                  {/* MBTI */}
-                  <Badge variant="outline" className="flex items-center space-x-1">
-                    <User className="w-4 h-4" />
-                    <span>{mbti}</span>
-                  </Badge>
-
-                  {/* Instruments */}
-                  {Array.isArray(instruments) && instruments.length > 0 ? (
-                    instruments.map(inst => (
-                      <Badge
-                        key={inst}
-                        variant="secondary"
-                        className="flex items-center space-x-1"
-                      >
-                        <Music className="w-4 h-4" />
-                        <span>{inst}</span>
-                      </Badge>
-                    ))
-                  ) : (
-                    <span className="italic text-gray-800 flex items-center space-x-1">
-                      <Music className="w-4 h-4" />
-                      <span>관객</span>
-                    </span>
-                  )}
-                </div>
-                <div className="flex space-x-6">
-                  {/* Preference (Primary Genre) */}
-                  {preference && (
-                    <div className="flex flex-col space-y-2">
-                      <p className="text-sm font-semibold text-gray-700">선호 장르</p>
-                      <div className="flex items-center space-x-2 flex-wrap">
-                        {(
-                          typeof preference === "string"
-                            ? [preference]
-                            : Object.values(preference)
-                        )
-                          .filter((g) => !!g)
-                          .map((g) => {
-                            const textColor = genreColorMap[g] || 'text-gray-700'
-                            return (
-                              <Badge
-                                key={g}
-                                className={`${textColor} bg-white border border-gray-200 px-2 py-1 text-xs rounded-full shadow-sm`}
-                              >
-                                {g.replace(/_/g, " ")}
-                              </Badge>
-                            )
-                          })}
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-
-                <div className="flex flex-wrap gap-2">
-                  <Badge variant="secondary">{isPublic ? "공개" : "비공개"}</Badge>
-                </div>
-              </div>
-
-              {/* 세로 구분선 */}
-              <div className="w-px bg-gray-200 h-24" />
-
-              {/* 오른쪽: 자기소개 & SNS */}
-              <div className="flex-1 space-y-4">
-                {/* 자기소개 */}
-                {bio ? (
-                  <p className="text-gray-700">{bio}</p>
-                ) : (
-                  <p className="text-gray-500 italic">자기소개가 없습니다.</p>
-                )}
-                {/* SNS 링크 */}
-                <div className="flex flex-col space-y-1 text-[#0AA5FF]">
-                  <a href="https://facebook.com/fake" target="_blank" rel="noreferrer" className=" hover:underline">
-                    Facebook
-                  </a>
-                  <a href="https://twitter.com/fake" target="_blank" rel="noreferrer" className=" hover:underline">
-                    Twitter
-                  </a>
-                  <a href="https://instagram.com/fake" target="_blank" rel="noreferrer" className=" hover:underline">
-                    Instagram
-                  </a>
-                </div>
-              </div>
+        {/* 프로필 카드 - 미니멀 & 세련된 UI */}
+        <Card className="flex flex-col md:flex-row items-center bg-white/80 border border-gray-200 shadow-xl rounded-2xl overflow-hidden py-10 px-8 mb-12 transition-all">
+          {/* 프로필 이미지 */}
+          <div className="flex-shrink-0 flex flex-col items-center justify-center mr-0 md:mr-10">
+            <div className="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden border-2 border-orange-200 shadow bg-gray-100 flex items-center justify-center">
+              <img
+                src={profileImageUrl || "/default-avatar.png"}
+                alt={nickname}
+                className="w-full h-full object-cover"
+              />
             </div>
-            {isOwner ? (
-              // 주인인 경우: 수정/삭제 버튼
-              <div className="mt-4 flex space-x-2">
-                <Button
-                  variant="outline"
-                  onClick={() => router.push("/profile/edit")}
-                >
-                  프로필 수정
-                </Button>
-              </div>
-            ) : (
-              // 주인이 아닌 경우: 팔로우 토글 버튼
-              <div className="mt-4">
-                <Button onClick={() => {/* 팔로우/언팔로우 로직 */ }}>
-                  { /* isFollowing 상태에 따라 */ "팔로우"}
-                </Button>
-              </div>
-            )}
-            {bio && <p className="text-gray-700">{bio}</p>}
+            {/* 공개/비공개 뱃지 */}
+            <Badge variant="secondary" className="mt-4 text-xs px-4 py-1 bg-orange-50 border-orange-200 text-orange-500">
+              {isPublic ? "공개" : "비공개"}
+            </Badge>
+          </div>
+          {/* 정보 영역 */}
+          <div className="flex-1 flex flex-col justify-center items-center md:items-start mt-8 md:mt-0">
+            {/* 닉네임 & 이메일 */}
+            <div className="flex flex-col items-center md:items-start mb-3">
+              <h1 className="text-3xl font-bold text-gray-900 mb-1 tracking-tight">{nickname}</h1>
+              <p className="text-gray-500 text-base">{email}</p>
+            </div>
+            {/* 팔로워/팔로잉 */}
+            <div className="flex items-center space-x-8 mb-4">
+              <Link href="/followers" className="flex items-center space-x-1 text-gray-700 hover:text-orange-500 transition-colors">
+                <User className="w-5 h-5" />
+                <span className="font-semibold text-lg">{followerCount}</span>
+                <span className="text-xs text-gray-400">팔로워</span>
+              </Link>
+              <span className="text-gray-300">|</span>
+              <Link href="/followings" className="flex items-center space-x-1 text-gray-700 hover:text-orange-500 transition-colors">
+                <UserSearch className="w-5 h-5" />
+                <span className="font-semibold text-lg">{followingCount}</span>
+                <span className="text-xs text-gray-400">팔로잉</span>
+              </Link>
+            </div>
+            {/* MBTI, 악기, 장르 */}
+            <div className="flex flex-wrap gap-2 mb-4">
+              <Badge variant="outline" className="flex items-center space-x-1 text-xs px-3 py-1">
+                <User className="w-4 h-4" />
+                <span>{mbti}</span>
+              </Badge>
+              {Array.isArray(instruments) && instruments.length > 0 ? (
+                instruments.map(inst => (
+                  <Badge key={inst} variant="secondary" className="flex items-center space-x-1 text-xs px-3 py-1 bg-orange-50 border-orange-200 text-orange-500">
+                    <Music className="w-4 h-4" />
+                    <span>{inst}</span>
+                  </Badge>
+                ))
+              ) : (
+                <span className="italic text-gray-800 flex items-center space-x-1 text-xs">
+                  <Music className="w-4 h-4" />
+                  <span>관객</span>
+                </span>
+              )}
+              {preference && (
+                (typeof preference === "string" ? [preference] : Object.values(preference))
+                  .filter((g) => !!g)
+                  .map((g) => {
+                    const textColor = genreColorMap[g] || 'text-orange-700'
+                    return (
+                      <Badge
+                        key={g}
+                        className={`${textColor} bg-white border border-orange-200 px-3 py-1 text-xs rounded-full shadow-sm`}
+                      >
+                        {g.replace(/_/g, " ")}
+                      </Badge>
+                    )
+                  })
+              )}
+            </div>
+            {/* 자기소개 */}
+            <div className="w-full max-w-xl text-center md:text-left mb-2">
+              {bio ? (
+                <p className="text-gray-700 text-base leading-relaxed line-clamp-2">{bio}</p>
+              ) : (
+                <p className="text-gray-400 italic text-base">자기소개가 없습니다.</p>
+              )}
+            </div>
+            {/* 위치 */}
             {location && (
-              <div className="flex items-center text-gray-600">
-                <MapPin className="mr-2" />
+              <div className="flex items-center text-gray-500 text-xs mb-2">
+                <MapPin className="mr-1 w-4 h-4" />
                 <span>{location}</span>
               </div>
             )}
-          </CardContent>
+            {/* SNS 링크 - 아이콘만, hover시 툴팁 */}
+            <div className="flex space-x-4 mt-3">
+              <a href="https://facebook.com/fake" target="_blank" rel="noreferrer" title="Facebook" className="hover:text-[#0AA5FF]">
+                <svg width="22" height="22" fill="currentColor" viewBox="0 0 24 24"><path d="M22.675 0h-21.35C.595 0 0 .592 0 1.326v21.348C0 23.408.595 24 1.326 24H12.82v-9.294H9.692v-3.622h3.127V8.413c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.797.143v3.24l-1.918.001c-1.504 0-1.797.715-1.797 1.763v2.313h3.587l-.467 3.622h-3.12V24h6.116C23.406 24 24 23.408 24 22.674V1.326C24 .592 23.406 0 22.675 0"/></svg>
+              </a>
+              <a href="https://twitter.com/fake" target="_blank" rel="noreferrer" title="Twitter" className="hover:text-[#1DA1F2]">
+                <svg width="22" height="22" fill="currentColor" viewBox="0 0 24 24"><path d="M24 4.557a9.83 9.83 0 0 1-2.828.775 4.932 4.932 0 0 0 2.165-2.724c-.951.564-2.005.974-3.127 1.195a4.916 4.916 0 0 0-8.38 4.482C7.691 8.095 4.066 6.13 1.64 3.161c-.542.929-.856 2.01-.857 3.17 0 2.188 1.115 4.116 2.823 5.247a4.904 4.904 0 0 1-2.229-.616c-.054 2.281 1.581 4.415 3.949 4.89a4.936 4.936 0 0 1-2.224.084c.627 1.956 2.444 3.377 4.6 3.417A9.867 9.867 0 0 1 0 21.543a13.94 13.94 0 0 0 7.548 2.209c9.058 0 14.009-7.496 14.009-13.986 0-.21 0-.423-.016-.634A9.936 9.936 0 0 0 24 4.557z"/></svg>
+              </a>
+              <a href="https://instagram.com/fake" target="_blank" rel="noreferrer" title="Instagram" className="hover:text-[#E4405F]">
+                <svg width="22" height="22" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 1.366.062 2.633.334 3.608 1.308.974.974 1.246 2.241 1.308 3.608.058 1.266.069 1.646.069 4.85s-.012 3.584-.07 4.85c-.062 1.366-.334 2.633-1.308 3.608-.974.974-2.241 1.246-3.608 1.308-1.266.058-1.646.069-4.85.069s-3.584-.012-4.85-.07c-1.366-.062-2.633-.334-3.608-1.308-.974-.974-1.246-2.241-1.308-3.608C2.175 15.747 2.163 15.367 2.163 12s.012-3.584.07-4.85c.062-1.366.334-2.633 1.308-3.608.974-.974 2.241-1.246 3.608-1.308C8.416 2.175 8.796 2.163 12 2.163zm0-2.163C8.741 0 8.332.013 7.052.072 5.775.131 4.602.425 3.635 1.392 2.668 2.359 2.374 3.532 2.315 4.808 2.256 6.088 2.243 6.497 2.243 12c0 5.503.013 5.912.072 7.192.059 1.276.353 2.449 1.32 3.416.967.967 2.14 1.261 3.416 1.32 1.28.059 1.689.072 7.192.072s5.912-.013 7.192-.072c1.276-.059 2.449-.353 3.416-1.32.967-.967 1.261-2.14 1.32-3.416.059-1.28.072-1.689.072-7.192s-.013-5.912-.072-7.192c-.059-1.276-.353-2.449-1.32-3.416C19.449.425 18.276.131 17 .072 15.721.013 15.312 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zm0 10.162a3.999 3.999 0 1 1 0-7.998 3.999 3.999 0 0 1 0 7.998zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg>
+              </a>
+            </div>
+            {/* 프로필 수정 버튼 (주인만) */}
+            {isOwner && (
+              <div className="mt-6">
+                <Button variant="outline" onClick={() => router.push("/profile/edit")}>프로필 수정</Button>
+              </div>
+            )}
+          </div>
         </Card>
         <p className="text-[#292929] pt-4 font-semibold text-xl">Top 5 Album</p>
         <div className="flex flex-col space-y-4 pt-4 ml-2 md:flex-row md:space-x-8 md:space-y-0 md:ml-2">
@@ -391,6 +371,58 @@ export default function ProfilePage() {
             ))}
           </div>
         </div>
+        {/* 내가 쓴 멤버모집글 */}
+        <section className="mt-16">
+          <h2 className="text-2xl font-semibold text-gray-800 mb-6">내가 작성한 멤버모집글</h2>
+          {recruitsLoading ? (
+            <div className="text-center text-gray-500 py-12 text-lg">로딩 중...</div>
+          ) : myRecruits.length === 0 ? (
+            <div className="text-center text-gray-400 py-12 text-lg">작성한 멤버모집글이 없습니다.</div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {myRecruits.map((post) => (
+                <Card key={post.id} className="group max-w-md mx-auto shadow-lg border border-gray-200 rounded-2xl overflow-hidden transition-transform hover:-translate-y-1 hover:shadow-2xl bg-white/90">
+                  <Link href={`/recruit/${post.id}`}
+                    className="block focus:outline-none focus:ring-2 focus:ring-orange-400">
+                    {/* 썸네일 영역 */}
+                    <div className="relative w-full aspect-[4/3] bg-gray-100 overflow-hidden border-b border-gray-100">
+                      <img
+                        src={post.thumbnail || "/no-image.png"}
+                        alt={post.title}
+                        className="w-full h-full object-cover object-center rounded-t-2xl group-hover:scale-105 transition-transform duration-300"
+                        style={{ background: post.thumbnail ? undefined : '#f3f4f6' }}
+                      />
+                      {/* 그라데이션 오버레이 */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent pointer-events-none rounded-t-2xl" />
+                    </div>
+                    <CardContent className="p-6 flex flex-col gap-2">
+                      <h3 className="font-semibold text-xl mb-1 truncate" title={post.title}>{post.title}</h3>
+                      <div className="flex flex-wrap gap-2 mb-1">
+                        {post.genres?.genre?.map((g: string) => (
+                          <Badge key={g} className="bg-orange-50 border border-orange-200 text-orange-500 px-2 py-1 text-xs rounded-full">{g}</Badge>
+                        ))}
+                      </div>
+                      <div className="flex flex-wrap gap-2 mb-1">
+                        {post.instruments?.map((inst: any, i: number) => (
+                          <Badge key={i} variant="secondary" className="text-xs bg-gray-50 border border-gray-200 text-gray-700 px-2 py-1 rounded-full">
+                            {inst.instrument?.replace(/_/g, " ")}
+                          </Badge>
+                        ))}
+                      </div>
+                      <div className="flex justify-between items-center mt-2">
+                        <div className="flex space-x-2">
+                          <Heart className="h-5 w-5 text-gray-400 group-hover:text-orange-500 transition-colors" />
+                          <Share2 className="h-5 w-5 text-gray-400 group-hover:text-orange-500 transition-colors" />
+                        </div>
+                        <span className="text-xs text-gray-400">자세히 보기 →</span>
+                      </div>
+                    </CardContent>
+                  </Link>
+                </Card>
+              ))}
+            </div>
+          )}
+        </section>
         <Tabs defaultValue="settings" className="mt-8 bg-white rounded-lg shadow">
           <TabsList className="grid grid-cols-2">
             <TabsTrigger value="settings" className="flex items-center justify-center py-3 font-medium">
