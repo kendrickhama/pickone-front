@@ -67,6 +67,7 @@ export default async function RecruitDetailPage({ params }: PageProps) {
                         </div>
 
                         <h1 className="text-3xl font-bold mb-2">{post.title}</h1>
+                        
                         <div className="flex items-center text-sm text-gray-500 mb-4">
                             <span className="mr-4">지역: {post.region}</span>
                             <span>

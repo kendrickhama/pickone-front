@@ -14,23 +14,21 @@ export default function HomePage() {
 
       {/* Hero Section - 네비게이션 높이만큼 패딩 추가 */}
       <section className="container mx-auto px-4 py-24 pt-32 text-center">
-        <div className="max-w-4xl mx-auto">
+      <div className="max-w-4xl mx-auto">
           <h1 className="text-6xl font-bold text-gray-900 mb-6 leading-tight">
             당신의 음악, <span className="text-orange-500">당신의 밴드</span>
           </h1>
           <p className="text-xl text-gray-600 mb-8 font-medium">취향대로 만나는 밴드메이커</p>
 
           <div className="max-w-2xl mx-auto mb-8">
-             <p className="text-gray-600 mb-4 leading-relaxed">
-              당신의 좋아하는 밴드 공연일정을 확인하세요.
+            <p className="text-gray-600 mb-4 leading-relaxed">
+              🎵 <strong>오늘의 공연</strong>을 확인하고 티켓을 예매하세요
             </p>
             <p className="text-gray-600 mb-4 leading-relaxed">
-              피크원은 당신이 좋아하는 장르, 연주 스타일, 음악적 성질을 바탕으로
-              <br />
-              취향이 맞는 멤버를 추천합니다.
+              🔥 <strong>인기 모집글</strong>에서 당신과 맞는 밴드를 찾아보세요
             </p>
             <p className="text-gray-600 leading-relaxed">
-              당신의 음악을 만아주는 사람들과 진짜 어울리는 밴드를 만들어보세요.
+              ✨ 피크원에서 <strong>1,247개 밴드</strong>와 <strong>3,892명의 멤버</strong>가 활동 중입니다
             </p>
           </div>
 
