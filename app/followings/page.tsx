@@ -31,7 +31,7 @@ export default function FollowingsPage() {
         }
         // fetch followings
         const base = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:3000";
-        const res = await fetch(`${base}/api/follow/followings/${id}`);
+        const res = await fetch(`/api/follow/followings/${id}`);
         if (res.ok) {
           const data = await res.json();
           if (data.isSuccess && Array.isArray(data.result)) {
