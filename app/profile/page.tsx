@@ -9,7 +9,7 @@ import { Edit, Save, MapPin, User, Settings, Info, UserSearch } from "lucide-rea
 import Navigation from "@/components/navigation"
 import Footer from "@/components/footer"
 import { useRouter, notFound } from "next/navigation"
-import { Calendar, Search,Music,Heart} from "lucide-react"
+import { Calendar, Search, Music, Heart } from "lucide-react"
 import Link from "next/link"
 import { useEffect, useState } from "react"
 
@@ -21,7 +21,12 @@ interface ApiResponse {
     email: string
     nickname: string
     mbti: string
-    preference: string
+    preference: | string | {
+      primaryGenre: string
+      secondaryGenre: string
+      tertiaryGenre: string
+      fouriaryGenre: string
+    }
     instruments: string
     profileImageUrl: string | null
     isPublic: boolean
@@ -104,6 +109,61 @@ export default function ProfilePage() {
     { title: "대학 축제", date: "2023-11-15", venue: "서울대학교", role: "기타" },
     { title: "버스킹", date: "2023-09-20", venue: "홍대 걷고싶은거리", role: "어쿠스틱 기타" },
   ];
+
+  const genreColorMap: Record<string, string> = {
+  INDIE_ROCK:       'text-indigo-600',
+  ALTERNATIVE_ROCK: 'text-blue-600',
+  HARD_ROCK:        'text-gray-800',
+  POST_ROCK:        'text-purple-600',
+  SHOEGAZING:       'text-pink-600',
+  HEAVY_METAL:      'text-red-700',
+  PUNK_ROCK:        'text-yellow-700',
+  GRUNGE:           'text-green-800',
+  PROGRESSIVE_ROCK: 'text-blue-800',
+  GARAGE_ROCK:      'text-yellow-800',
+  CLASSIC_ROCK:     'text-gray-600',
+
+  DEATH_METAL:      'text-gray-900',
+  BLACK_METAL:      'text-black',
+  THRASH_METAL:     'text-red-800',
+  DOOM_METAL:       'text-gray-700',
+
+  FOLK:             'text-teal-700',
+  FOLK_ROCK:        'text-green-600',
+  ACOUSTIC:         'text-amber-600',
+
+  JAZZ:             'text-teal-600',
+  SMOOTH_JAZZ:      'text-blue-400',
+  FUSION_JAZZ:      'text-indigo-500',
+  LOFI_JAZZ:        'text-gray-400',
+
+  POP:              'text-pink-500',
+  DREAM_POP:        'text-pink-400',
+  SYNTH_POP:        'text-purple-500',
+  ELECTRO_POP:      'text-purple-400',
+
+  HIPHOP:           'text-yellow-600',
+  LOFI:             'text-gray-500',
+  EDM:              'text-indigo-500',
+  AMBIENT:          'text-emerald-600',
+  HOUSE:            'text-amber-500',
+  TECHNO:           'text-cyan-600',
+  TRANCE:           'text-violet-500',
+
+  BLUES:            'text-blue-700',
+  SOUL:             'text-red-500',
+  RNB:              'text-purple-700',
+
+  CLASSICAL:        'text-gray-500',
+  FUNK:             'text-orange-600',
+  REGGAE:           'text-green-700',
+  WORLD_MUSIC:      'text-emerald-500',
+  EXPERIMENTAL:     'text-fuchsia-500',
+  POST_PUNK:        'text-rose-600',
+  MATH_ROCK:        'text-lime-700',
+  GOSPEL:           'text-yellow-500',
+}
+
   return (
     <div className="min-h-screen bg-[#FFFFFF]">
       <Navigation />
@@ -152,6 +212,21 @@ export default function ProfilePage() {
               <div className="flex-1 space-y-2">
                 <h1 className="text-3xl font-bold text-[#292929]">{nickname}</h1>
                 <p className="text-gray-500">{email}</p>
+                <p className="text-[#828C94] flex items-center space-x-2">
+                  <Link
+                    href="/followers"
+                    className="hover:text-[#c4cfd9] transition-colors"
+                  >
+                    팔로워 <span className="font-semibold text-[#2F3438]">{followerCount}</span>
+                  </Link>
+                  <span>│</span>
+                  <Link
+                    href="/followings"
+                    className="hover:text-[#c4cfd9] transition-colors"
+                  >
+                    팔로잉 <span className="font-semibold text-[#2F3438]">{followingCount}</span>
+                  </Link>
+                </p>
                 <div className="flex flex-wrap items-center gap-2 text-sm text-gray-600">
                   {/* MBTI */}
                   <Badge variant="outline" className="flex items-center space-x-1">
@@ -177,33 +252,35 @@ export default function ProfilePage() {
                       <span>관객</span>
                     </span>
                   )}
-
+                </div>
+                <div className="flex space-x-6">
                   {/* Preference (Primary Genre) */}
                   {preference && (
-                    <Badge
-                      variant="destructive"
-                      className="flex items-center space-x-1"
-                    >
-                      <Heart className="w-4 h-4" />
-                      <span>{preference}</span>
-                    </Badge>
+                    <div className="flex flex-col space-y-2">
+                      <p className="text-sm font-semibold text-gray-700">선호 장르</p>
+                      <div className="flex items-center space-x-2 flex-wrap">
+                        {(
+                          typeof preference === "string"
+                            ? [preference]
+                            : Object.values(preference)
+                        )
+                          .filter((g) => !!g)
+                          .map((g) => {
+                            const textColor = genreColorMap[g] || 'text-gray-700'
+                            return (
+                              <Badge
+                                key={g}
+                                className={`${textColor} bg-white border border-gray-200 px-2 py-1 text-xs rounded-full shadow-sm`}
+                              >
+                                {g.replace(/_/g, " ")}
+                              </Badge>
+                            )
+                          })}
+                      </div>
+                    </div>
                   )}
                 </div>
-                <p className="text-[#828C94] flex items-center space-x-2">
-                  <Link
-                    href="/followers"
-                    className="hover:text-[#c4cfd9] transition-colors"
-                  >
-                    팔로워 <span className="font-semibold text-[#2F3438]">{followerCount}</span>
-                  </Link>
-                  <span>│</span>
-                  <Link
-                    href="/followings"
-                    className="hover:text-[#c4cfd9] transition-colors"
-                  >
-                    팔로잉 <span className="font-semibold text-[#2F3438]">{followingCount}</span>
-                  </Link>
-                </p>
+
 
                 <div className="flex flex-wrap gap-2">
                   <Badge variant="secondary">{isPublic ? "공개" : "비공개"}</Badge>
@@ -243,14 +320,6 @@ export default function ProfilePage() {
                   onClick={() => router.push("/profile/edit")}
                 >
                   프로필 수정
-                </Button>
-                <Button
-                  variant="destructive"
-                  onClick={() => {
-                    /* 계정 삭제 로직 */
-                  }}
-                >
-                  계정 삭제
                 </Button>
               </div>
             ) : (
