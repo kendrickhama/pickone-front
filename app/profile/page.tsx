@@ -92,25 +92,25 @@ export default function ProfilePage() {
   useEffect(() => {
     const id = localStorage.getItem("userId")
     if (id) setCurrentUserId(Number(id))
-    ;(async () => {
-      if (!id) {
-        notFound()
-        return
-      }
-      const [res, fRes, foRes] = await Promise.all([
-        fetch(`/api/users/${id}`, { cache: "no-store" }),
-        fetch(`/api/follow/followings/${id}`, { cache: "no-store" }),
-        fetch(`/api/follow/followers/${id}`, { cache: "no-store" }),
-      ])
-      if (!res.ok) return notFound()
-      const json: ApiResponse = await res.json()
-      if (!json.isSuccess) return notFound()
-      setUserData(json.result)
-      const fJson: FollowResponse = await fRes.json()
-      setFollowingCount(fJson.isSuccess ? fJson.result.length : 0)
-      const foJson: FollowResponse = await foRes.json()
-      setFollowerCount(foJson.isSuccess ? foJson.result.length : 0)
-    })()
+      ; (async () => {
+        if (!id) {
+          notFound()
+          return
+        }
+        const [res, fRes, foRes] = await Promise.all([
+          fetch(`/api/users/${id}`, { cache: "no-store" }),
+          fetch(`/api/follow/followings/${id}`, { cache: "no-store" }),
+          fetch(`/api/follow/followers/${id}`, { cache: "no-store" }),
+        ])
+        if (!res.ok) return notFound()
+        const json: ApiResponse = await res.json()
+        if (!json.isSuccess) return notFound()
+        setUserData(json.result)
+        const fJson: FollowResponse = await fRes.json()
+        setFollowingCount(fJson.isSuccess ? fJson.result.length : 0)
+        const foJson: FollowResponse = await foRes.json()
+        setFollowerCount(foJson.isSuccess ? foJson.result.length : 0)
+      })()
   }, [])
 
   // 2. 내가 쓴 모집글 fetch
@@ -337,7 +337,6 @@ export default function ProfilePage() {
             {/* MBTI, 악기, 장르 */}
             <div className="flex flex-wrap gap-2 mb-4">
               <Badge variant="outline" className="flex items-center space-x-1 text-xs px-3 py-1">
-                <User className="w-4 h-4" />
                 <span>{mbti}</span>
               </Badge>
               {Array.isArray(instruments) && instruments.length > 0 ? (
@@ -349,8 +348,10 @@ export default function ProfilePage() {
                 ))
               ) : (
                 <span className="italic text-gray-800 flex items-center space-x-1 text-xs">
-                  <Music className="w-4 h-4" />
-                  <span>관객</span>
+                  <Badge variant="outline" className="flex items-center space-x-1 text-xs px-3 py-1">
+                    <Music className="w-4 h-4" />
+                    <span>관객</span>
+                  </Badge>
                 </span>
               )}
               {preference && (

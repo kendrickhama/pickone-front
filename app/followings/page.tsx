@@ -49,7 +49,7 @@ export default function FollowingsPage() {
     <div className="min-h-screen bg-gray-50">
       <Navigation />
       <main className="max-w-4xl mx-auto p-6 pt-20">
-        <h1 className="text-2xl font-bold text-[#292929] mb-2">{nickname ? `${nickname}님의 팔로잉 목록` : "내 팔로잉 목록"}</h1>
+        <h1 className="text-2xl font-bold text-[#292929] mb-2">{nickname ? `${nickname} 님의 팔로잉 목록` : "내 팔로잉 목록"}</h1>
         <p className="text-gray-500 mb-8">함께하는 사람들과의 네트워크를 확인해보세요.</p>
         {loading ? (
           <div className="flex flex-col items-center justify-center py-32 text-gray-400 min-h-[40vh]">
