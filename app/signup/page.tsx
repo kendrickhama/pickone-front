@@ -115,14 +115,8 @@ export default function SignupPage() {
       <div className="flex flex-col items-center justify-center min-h-screen px-4 pt-24 bg-gray-50">
         <div className="w-full max-w-lg">
           {/* 헤더 섹션 */}
-          <div className="text-center mb-8">
-            <div className="flex items-center justify-center mb-4">
-              <div className="w-16 h-16 bg-gradient-to-r from-orange-400 to-orange-600 rounded-full flex items-center justify-center shadow-lg">
-                <Music className="w-8 h-8 text-white" />
-              </div>
-            </div>
-            <h1 className="text-4xl font-bold text-gray-800 mb-2">Pickone 가입하기</h1>
-            <p className="text-gray-600 text-lg">당신의 음악 여정을 시작하세요</p>
+          <div className="text-left mb-8">
+            <h1 className="text-xl font-bold text-gray-800 mb-2">회원가입</h1>
           </div>
 
           {/* 폼 컨테이너 */}

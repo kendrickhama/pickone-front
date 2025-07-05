@@ -73,7 +73,7 @@ export default function LoginPage() {
     <>
       <Navigation />
 
-      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 px-4">
+      <div className="flex flex-col items-center min-h-[80vh] bg-gray-50 px-4 pt-24 pb-8">
         <div className="w-full max-w-sm bg-white p-6 rounded-lg shadow-md">
           {/* 로고+타이틀 */}
           <div className="flex items-center justify-center mb-6">
@@ -145,7 +145,7 @@ export default function LoginPage() {
             </Link>
           </div>
 
-          {/* “sns 계정으로 간편 로그인/회원가입” 텍스트 */}
+          {/* "sns 계정으로 간편 로그인/회원가입" 텍스트 */}
           <div className="text-center text-gray-400 text-sm mt-6">
             SNS 계정으로 간편 로그인/회원가입
           </div>
