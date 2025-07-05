@@ -45,8 +45,7 @@ export default function Navigation() {
           {/* PC 메뉴 */}
           <div className="font-semibold hidden md:flex items-center space-x-8">
             {navItems.map((item) => {
-              // '/profile' 은 로그인된 상태에서만 보여줌
-              if (item.href === "/profile" && !email) return null;
+              if (item.href === "/profile" && !email) return null
               return (
                 <Link
                   key={item.href}
@@ -57,7 +56,7 @@ export default function Navigation() {
                 >
                   {item.label}
                 </Link>
-              );
+              )
             })}
             {email && (
               <button
@@ -93,9 +92,9 @@ export default function Navigation() {
           </div>
 
           {/* 모바일 메뉴 */}
-          <div className="md:hidden flex items-center space-x-2">
+          <div className="md:hidden flex items-center space-x-4">
             {navItems.map((item) => {
-              if (item.href === "/profile" && !email) return null;
+              if (item.href === "/profile" && !email) return null
               return (
                 <Link
                   key={item.href}
@@ -107,8 +106,35 @@ export default function Navigation() {
                 >
                   {item.label}
                 </Link>
-              );
+              )
             })}
+            {email ? (
+              <>
+                <button
+                  onClick={() => router.push("/notifications")}
+                  className="text-gray-600 hover:text-gray-900 transition-colors"
+                  aria-label="알림 보기"
+                >
+                  <Bell className="w-5 h-5" />
+                </button>
+                <Button
+                  variant="outline"
+                  className="border-gray-300 text-gray-700 hover:bg-gray-50 text-sm px-3 py-2"
+                  onClick={handleLogout}
+                >
+                  로그아웃
+                </Button>
+              </>
+            ) : (
+              <Link href="/login">
+                <Button
+                  variant="outline"
+                  className="border-gray-300 text-gray-700 hover:bg-gray-50 text-sm px-3 py-2"
+                >
+                  Login
+                </Button>
+              </Link>
+            )}
           </div>
         </div>
       </div>

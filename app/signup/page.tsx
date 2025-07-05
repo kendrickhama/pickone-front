@@ -67,7 +67,7 @@ export default function SignupPage() {
           nickname: form.nickname,
           birthDate: form.birthDate,
           gender: form.gender,
-          agreements: [{ termId: 1, consented: true }],
+          terms: [{ termId: 1, consented: true }],
         }),
       })
       const data = await response.json()
