@@ -23,7 +23,7 @@ export default function Navigation() {
     localStorage.removeItem("email")
     localStorage.removeItem("userId")
     setEmail(null)
-    router.push("/") // 홈으로 이동
+    router.push("/")
   }
 
   const navItems = [
@@ -35,7 +35,7 @@ export default function Navigation() {
   ]
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-[#FFFFFF] backdrop-blur-sm border-b border-gray-200 shadow-sm">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-white backdrop-blur-sm border-b border-gray-200 shadow-sm">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <Link href="/" className="text-2xl font-bold text-orange-500">
@@ -43,7 +43,7 @@ export default function Navigation() {
           </Link>
 
           {/* PC 메뉴 */}
-          <div className="font-semibold hidden md:flex items-center space-x-8">
+          <div className="hidden md:flex items-center space-x-8 font-semibold">
             {navItems.map((item) => {
               if (item.href === "/profile" && !email) return null
               return (
@@ -52,6 +52,7 @@ export default function Navigation() {
                   href={item.href}
                   className={cn(
                     "text-gray-600 hover:text-gray-900 transition-colors font-medium",
+                    pathname === item.href && "text-gray-900"
                   )}
                 >
                   {item.label}
@@ -67,10 +68,9 @@ export default function Navigation() {
                 <Bell className="w-5 h-5" />
               </button>
             )}
-
             {email ? (
               <div className="flex items-center space-x-3">
-                <span className="text-sm text-gray-700">{email}</span>
+                <span className="text-sm text-gray-700 truncate max-w-xs">{email}</span>
                 <Button
                   variant="outline"
                   className="border-gray-300 text-gray-700 hover:bg-gray-50"
@@ -81,10 +81,7 @@ export default function Navigation() {
               </div>
             ) : (
               <Link href="/login">
-                <Button
-                  variant="outline"
-                  className="border-gray-300 text-gray-700 hover:bg-gray-50"
-                >
+                <Button variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-50">
                   Login
                 </Button>
               </Link>
@@ -92,7 +89,7 @@ export default function Navigation() {
           </div>
 
           {/* 모바일 메뉴 */}
-          <div className="md:hidden flex items-center space-x-4">
+          <div className="md:hidden flex items-center space-x-4 px-2">
             {navItems.map((item) => {
               if (item.href === "/profile" && !email) return null
               return (
@@ -100,7 +97,7 @@ export default function Navigation() {
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "text-sm text-gray-600 hover:text-gray-900 transition-colors",
+                    "inline-block text-sm text-gray-600 hover:text-gray-900 transition-colors",
                     pathname === item.href && "text-gray-900 font-medium"
                   )}
                 >
@@ -108,28 +105,11 @@ export default function Navigation() {
                 </Link>
               )
             })}
-            {email ? (
-              <>
-                <button
-                  onClick={() => router.push("/notifications")}
-                  className="text-gray-600 hover:text-gray-900 transition-colors"
-                  aria-label="알림 보기"
-                >
-                  <Bell className="w-5 h-5" />
-                </button>
+            {!email && (
+              <Link href="/login" className="inline-block">
                 <Button
                   variant="outline"
-                  className="border-gray-300 text-gray-700 hover:bg-gray-50 text-sm px-3 py-2"
-                  onClick={handleLogout}
-                >
-                  로그아웃
-                </Button>
-              </>
-            ) : (
-              <Link href="/login">
-                <Button
-                  variant="outline"
-                  className="border-gray-300 text-gray-700 hover:bg-gray-50 text-sm px-3 py-2"
+                  className="border-gray-300 text-gray-700 hover:bg-gray-50 text-sm px-3 py-2 whitespace-nowrap"
                 >
                   Login
                 </Button>
