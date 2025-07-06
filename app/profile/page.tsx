@@ -28,6 +28,7 @@ interface ApiResponse {
     }
     instruments: string
     profileImageUrl: string | null
+    introduction: string
     isPublic: boolean
     role: string
     bio?: string
@@ -174,6 +175,7 @@ export default function ProfilePage() {
     role,
     bio = "",
     location = "",
+    introduction="",
   } = userData
 
 
@@ -372,8 +374,8 @@ export default function ProfilePage() {
             </div>
             {/* 자기소개 */}
             <div className="w-full max-w-xl text-center md:text-left mb-2">
-              {bio ? (
-                <p className="text-gray-700 text-base leading-relaxed line-clamp-2">{bio}</p>
+              {introduction ? (
+                <p className="text-gray-700 text-base leading-relaxed line-clamp-2">{introduction}</p>
               ) : (
                 <p className="text-gray-400 italic text-base">자기소개가 없습니다.</p>
               )}

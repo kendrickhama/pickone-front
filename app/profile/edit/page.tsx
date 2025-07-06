@@ -24,6 +24,7 @@ type ProfileForm = {
     birthDate: string
     gender: Gender
     mbti: MBTI
+    introduction: string
 }
 
 export default function ProfileEditPage() {
@@ -35,6 +36,7 @@ export default function ProfileEditPage() {
         birthDate: "",
         gender: "MALE",
         mbti: "",
+        introduction:""
     })
     const [profileImageUrl, setProfileImageUrl] = useState<string | null>(null)
     const [loading, setLoading] = useState(true)
@@ -52,6 +54,7 @@ export default function ProfileEditPage() {
                 birthDate: result.birthDate,
                 gender: result.gender,
                 mbti: result.mbti,
+                introduction: result.introduction
             })
             setProfileImageUrl(result.profileImageUrl || null)
             setLoading(false)
@@ -191,6 +194,10 @@ export default function ProfileEditPage() {
                                     ))}
                                 </SelectMenu>
                             </Select>
+                        </div>
+                       <div>
+                            <Label htmlFor="nickname">자기소개</Label>
+                            <Input id="introduction" name="introduction" value={form.introduction} onChange={handleChange} placeholder="본인을 소개해주세요" autoComplete="off" />
                         </div>
                     </div>
                     {/* 에러/로딩 안내 */}
