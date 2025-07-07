@@ -82,3 +82,40 @@ export async function PATCH(request: NextRequest, { params }: { params: { path: 
     return new NextResponse('프록시 서버 오류', { status: 500 })
   }
 }
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { path: string[] } }
+) {
+  // ① 원본 요청의 쿼리스트링을 가져옵니다
+  const queryString = request.nextUrl.search  // e.g. "?page=0&size=10"
+
+  // ② catch-all으로 넘어온 path segments를 합칩니다
+  const path = params.path.join('/')          // e.g. "follow/1/2"
+
+  // ③ 최종 백엔드 URL에 queryString 붙이기
+  const url = `${BACKEND_BASE}/${path}${queryString}`
+
+  // ④ 헤더 복사 (불필요한 Host/Origin 삭제)
+  const headers = new Headers(request.headers)
+  headers.delete('host')
+  headers.delete('origin')
+  headers.delete('referer')
+
+  try {
+    const res = await fetch(url, {
+      method: 'DELETE',
+      headers,
+      // body 포함이 필요한 경우 아래 주석 해제
+      // body: await request.text(),
+    })
+    const body = await res.text()
+    return new NextResponse(body, {
+      status: res.status,
+      headers: res.headers,
+    })
+  } catch (e) {
+    console.error('프록시 DELETE 에러:', e)
+    return new NextResponse('프록시 서버 오류', { status: 500 })
+  }
+}
