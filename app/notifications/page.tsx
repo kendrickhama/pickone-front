@@ -83,10 +83,20 @@ export default function NotificationsPage() {
               <li
                 key={n.id}
                 className={`flex items-start gap-4 py-5 transition-colors ${n.status === "UNREAD" ? "bg-[#FFF9F3]" : "bg-white"}`}
-                onClick={() => {
+                onClick={async () => {
+                  if (n.status === "READ") return;
+                  // optimistic update
                   setNotifications((prev) => prev.map((item) =>
                     item.id === n.id ? { ...item, status: "READ" } : item
                   ));
+                  try {
+                    await fetch(`/api/notifications/${n.id}/read`, { method: "PATCH" });
+                  } catch (e) {
+                    // 실패 시 다시 UNREAD로 롤백 (선택)
+                    setNotifications((prev) => prev.map((item) =>
+                      item.id === n.id ? { ...item, status: "UNREAD" } : item
+                    ));
+                  }
                 }}
                 style={{ cursor: n.status === "UNREAD" ? "pointer" : "default" }}
               >
