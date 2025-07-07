@@ -4,11 +4,13 @@ import Navigation from "@/components/navigation"
 import Footer from "@/components/footer"
 import { Card, CardContent } from "@/components/ui/card"
 import { useEffect, useState } from "react"
+import Link from "next/link"
 
 interface FollowingItem {
   id: number;
   fromUserId: number;
   toUserId: number;
+  nickname?: string;
 }
 
 export default function FollowingsPage() {
@@ -65,19 +67,23 @@ export default function FollowingsPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-7">
             {followings.map((f) => (
-              <Card key={f.id} className="flex items-center gap-5 p-6 bg-white/90 border border-gray-200 rounded-2xl shadow-lg hover:shadow-2xl transition-all group">
-                <div className="flex-shrink-0">
-                  <img
-                    src="/default-avatar.png"
-                    alt={`user-${f.toUserId}`}
-                    className="w-20 h-20 rounded-full object-cover border border-gray-200 shadow"
-                  />
-                </div>
-                <CardContent className="p-0 flex-1 min-w-0 flex flex-col justify-center">
-                  <div className="text-xl font-bold text-gray-900">User ID: {f.toUserId}</div>
-                  <div className="text-gray-400 text-sm mt-1">(상세 정보 없음)</div>
-                </CardContent>
-              </Card>
+              <Link key={f.id} href={`/profile/${f.toUserId}`} className="group">
+                <Card className="flex items-center gap-5 p-6 bg-white/90 border border-gray-200 rounded-2xl shadow-lg hover:shadow-2xl hover:bg-orange-50/40 transition-all cursor-pointer">
+                  <div className="flex-shrink-0">
+                    <img
+                      src="/default-avatar.png"
+                      alt={`user-${f.toUserId}`}
+                      className="w-20 h-20 rounded-full object-cover border border-gray-200 shadow group-hover:border-orange-400 group-hover:shadow-orange-200 transition-all"
+                    />
+                  </div>
+                  <CardContent className="p-0 flex-1 min-w-0 flex flex-col justify-center">
+                    <div className="text-xl font-bold text-gray-900 group-hover:text-orange-500 transition-colors">
+                      {f.nickname ? f.nickname : `User ID: ${f.toUserId}`}
+                    </div>
+                    <div className="text-gray-400 text-sm mt-1">{f.nickname ? `ID: ${f.toUserId}` : "(상세 정보 없음)"}</div>
+                  </CardContent>
+                </Card>
+              </Link>
             ))}
           </div>
         )}
