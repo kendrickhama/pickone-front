@@ -31,9 +31,8 @@ export async function GET(request: NextRequest, { params }: { params: { path: st
 }
 
 export async function POST(request: NextRequest, { params }: { params: { path: string[] } }) {
-  const queryString = request.nextUrl.search
   const path = params.path.join('/')
-  const url = `${BACKEND_BASE}/${path}${queryString}`
+  const url = `${BACKEND_BASE}/${path}${request.nextUrl.search}`
 
   const headers = new Headers(request.headers)
   headers.delete('host')
@@ -42,12 +41,18 @@ export async function POST(request: NextRequest, { params }: { params: { path: s
     const res = await fetch(url, {
       method: 'POST',
       headers,
-      body: await request.text(),
-    })
-    const body = await res.text()
-    return new NextResponse(body, {
+      body: request.body,
+      duplex: 'half'
+    } as any)
+    
+
+    const buffer = await res.arrayBuffer()
+    const respHeaders = new Headers(res.headers)
+    respHeaders.set('content-length', String(buffer.byteLength))
+
+    return new NextResponse(buffer, {
       status: res.status,
-      headers: res.headers,
+      headers: respHeaders,
     })
   } catch (e) {
     console.error('프록시 POST 에러:', e)

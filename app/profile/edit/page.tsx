@@ -42,6 +42,8 @@ export default function ProfileEditPage() {
     const [loading, setLoading] = useState(true)
     const [saving, setSaving] = useState(false)
     const [error, setError] = useState("")
+    const [imageUploading, setImageUploading] = useState(false)
+    const [imageUploadError, setImageUploadError] = useState("")
 
     useEffect(() => {
         const userId = localStorage.getItem("userId")
@@ -66,16 +68,36 @@ export default function ProfileEditPage() {
         setForm(prev => ({ ...prev, [name]: value }))
     }
 
-    // 프로필 이미지 업로드 핸들러 (mock)
-    const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
+    // 프로필 이미지 업로드 핸들러 (S3 연동)
+    const handleImageChange = async (e: ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
             const file = e.target.files[0]
-            const reader = new FileReader()
-            reader.onload = (ev) => {
-                setProfileImageUrl(ev.target?.result as string)
+            setImageUploading(true)
+            setImageUploadError("")
+            try {
+                const formData = new FormData()
+                formData.append("file", file)
+                formData.append("imgText", "profile")
+                const token = localStorage.getItem("token")
+                const res = await fetch("/api/s3/upload", {
+                    method: "POST",
+                    body: formData,
+                    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+                })
+                let data: any = {}
+                const text = await res.text()
+                try { data = text ? JSON.parse(text) : {} } catch { }
+                if (!res.ok || !data.isSuccess) {
+                    setImageUploadError(data.message || "이미지 업로드에 실패했습니다.")
+                    setImageUploading(false)
+                    return
+                }
+                setProfileImageUrl(data.result.imgUrl)
+            } catch (err: any) {
+                setImageUploadError(err.message || "이미지 업로드 중 오류가 발생했습니다.")
+            } finally {
+                setImageUploading(false)
             }
-            reader.readAsDataURL(file)
-            // 실제 업로드 로직은 별도 구현 필요
         }
     }
 
@@ -89,7 +111,7 @@ export default function ProfileEditPage() {
             const res = await fetch(`/api/users/${userId}/profile`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(form),
+                body: JSON.stringify({ ...form, profileImageUrl }),
             })
             const text = await res.text()
             let data: any = {}
@@ -161,8 +183,10 @@ export default function ProfileEditPage() {
                         </div>
                         <label className="mt-2 text-xs text-gray-500 cursor-pointer hover:text-orange-500 transition-colors">
                             이미지 변경
-                            <input type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
+                            <input type="file" accept="image/*" className="hidden" onChange={handleImageChange} disabled={imageUploading} />
                         </label>
+                        {imageUploading && <span className="text-xs text-orange-500 mt-1">이미지 업로드 중...</span>}
+                        {imageUploadError && <span className="text-xs text-red-500 mt-1">{imageUploadError}</span>}
                     </div>
                     {/* 입력 필드 */}
                     <div className="w-full flex flex-col gap-4">
