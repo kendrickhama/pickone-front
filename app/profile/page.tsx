@@ -320,9 +320,11 @@ export default function ProfilePage() {
             {/* 공유 버튼 */}
             <button
               onClick={() => {
-                navigator.clipboard.writeText(window.location.href)
+                if (!userData?.id) return;
+                const shareUrl = `${window.location.origin}/profile/${userData.id}`;
+                navigator.clipboard.writeText(shareUrl)
                   .then(() => alert('프로필 링크가 복사되었습니다!'))
-                  .catch(() => alert('복사에 실패했습니다.'))
+                  .catch(() => alert('복사에 실패했습니다.'));
               }}
               className="absolute top-0 right-0 md:static md:self-end flex items-center gap-1 px-3 py-2 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 shadow transition-all border border-gray-200 mb-2"
               title="프로필 공유"
