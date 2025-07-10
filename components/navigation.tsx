@@ -31,6 +31,7 @@ export default function Navigation() {
     { href: "/band", label: "밴드" },
     { href: "/recruit", label: "멤버모집" },
     { href: "/explore", label: "파동" },
+    { href: "/chat", label: "채팅" },
     { href: "/profile", label: "마이페이지" },
   ]
 
