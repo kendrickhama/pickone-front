@@ -55,7 +55,7 @@ export default async function RecruitPage({ searchParams }: PageParams) {
     <div className="min-h-screen bg-gray-50">
       <Navigation />
       <div className="max-w-7xl mx-auto px-4">
-        <HeroSlider slides={heroSlides} />
+      <HeroSlider slides={heroSlides} />
       </div>
 
       {/* 필터 + 글쓰기 */}

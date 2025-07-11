@@ -43,31 +43,49 @@ export default async function RecruitDetailPage({ params }: PageProps) {
 
     const post: RecruitDetail = json.result;
 
+    // YouTube embed 변환 함수
+    function getEmbedUrl(url: string) {
+        const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+)/);
+        if (ytMatch) {
+            return `https://www.youtube.com/embed/${ytMatch[1]}`;
+        }
+        return null; // 지원하지 않는 경우
+    }
+
     return (
         <div className="min-h-screen bg-gray-50">
             <Navigation />
             <main className="container mx-auto max-w-4xl px-4 py-8 pt-24">
                 <Card className="overflow-hidden max-w-4xl">
-                    {post.thumbnail && (
-                        <img
-                            src={post.thumbnail}
-                            alt={post.title}
-                            className="w-full h-64 object-cover"
-                        />
-                    )}
                     <CardContent className="p-6">
                         {/* Type & Visibility */}
-                        <div className="flex items-center space-x-2 mb-4">
-                            <Badge variant="secondary" className="uppercase">
-                                {post.type.replace(/_/g, " ")}
-                            </Badge>
-                            <Badge variant="outline" className="uppercase">
-                                {post.visibility}
-                            </Badge>
+                        <div className="-mx-6 -mt-6 mb-8 relative">
+                            {post.thumbnail ? (
+                                <>
+                                    <img
+                                        src={post.thumbnail}
+                                        alt={post.title}
+                                        className="w-full h-64 md:h-80 object-cover rounded-t-xl border-b shadow-none"
+                                    />
+                                    {/* 오버레이와 제목/뱃지 */}
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent rounded-t-xl flex flex-col justify-between">
+                                        <div className="flex justify-between items-start p-4">
+                                            <span className="bg-orange-500 text-white font-bold rounded-full px-6 py-2 text-lg shadow-lg animate-bounce">모집중</span>
+                                        </div>
+                                        <div className="p-6">
+                                            <h1 className="text-3xl font-extrabold text-white drop-shadow-lg">{post.title}</h1>
+                                        </div>
+                                    </div>
+                                </>
+                            ) : (
+                                <div className="w-full h-64 md:h-80 bg-gray-200 rounded-t-xl flex items-center justify-center text-gray-400">No Image</div>
+                            )}
                         </div>
-
-                        <h1 className="text-3xl font-bold mb-2">{post.title}</h1>
-                        
+                        {/* 제목은 배너로 이동 */}
+                        <div className="flex flex-wrap gap-2 mb-2">
+                            <Badge variant="secondary" className="uppercase">{post.type.replace(/_/g, " ")}</Badge>
+                            <Badge variant="outline" className="uppercase">{post.visibility}</Badge>
+                        </div>
                         <div className="flex items-center text-sm text-gray-500 mb-4">
                             <span className="mr-4">지역: {post.region}</span>
                             <span>
@@ -79,11 +97,13 @@ export default async function RecruitDetailPage({ params }: PageProps) {
                         </div>
 
                         {/* Description */}
+                        <div className="font-semibold text-lg mb-2">본문</div>
                         <p className="text-gray-700 mb-6 whitespace-pre-line">
                             {post.description}
                         </p>
 
                         {/* Genres */}
+                        <div className="font-semibold text-lg mb-2">레퍼런스 장르</div>
                         <div className="flex flex-wrap gap-2 mb-6">
                             {post.genres.genre.map((g) => (
                                 <Badge key={g} variant="secondary">
@@ -93,15 +113,12 @@ export default async function RecruitDetailPage({ params }: PageProps) {
                         </div>
 
                         {/* Instruments */}
+                        <div className="font-semibold text-lg mb-2">모집 세션/ 지원 가능 실력</div>
                         <div className="mb-6">
-                            <h2 className="text-lg font-semibold mb-2">
-                                모집 세션/ 지원 가능 실력
-                            </h2>
                             <ul className="list-disc pl-5 text-gray-700">
                                 {post.instruments.map((inst, idx) => (
                                     <li key={idx}>
-                                        {inst.instrument.replace(/_/g, " ")} -{" "}
-                                        {inst.proficiency.replace(/_/g, " ").toLowerCase()}
+                                        {inst.instrument.replace(/_/g, " ")} - {inst.proficiency.replace(/_/g, " ").toLowerCase()}
                                     </li>
                                 ))}
                             </ul>
@@ -110,15 +127,22 @@ export default async function RecruitDetailPage({ params }: PageProps) {
                         {/* SNS Embed Preview */}
                         {post.snsLink && (
                             <div className="mb-6">
-                                <div className="aspect-w-16 aspect-h-9 rounded-lg overflow-hidden border">
-                                    <iframe
-                                        src={post.snsLink}
-                                        className="w-full h-full"
-                                        frameBorder="0"
-                                        allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
-                                        allowFullScreen
-                                    />
-                                </div>
+                                <div className="font-semibold text-lg mb-2">레퍼런스 곡/ 밴드/ 작업물</div>
+                                {getEmbedUrl(post.snsLink) ? (
+                                    <div style={{ aspectRatio: '16/9', maxWidth: 480, margin: '0 auto', minHeight: 320 }} className="w-full rounded-lg overflow-hidden border bg-black shadow-lg">
+                                        <iframe
+                                            src={getEmbedUrl(post.snsLink)!}
+                                            className="w-full h-full"
+                                            frameBorder="0"
+                                            allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+                                            allowFullScreen
+                                        />
+                                    </div>
+                                ) : (
+                                    <div className="text-gray-400 text-center py-8">
+                                        미리보기를 지원하지 않는 링크입니다.
+                                    </div>
+                                )}
                             </div>
                         )}
 
