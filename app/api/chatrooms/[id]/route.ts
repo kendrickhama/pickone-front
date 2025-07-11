@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 
+// context를 받아야 함: `params`는 여기서 꺼내야 함
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   try {
-    const roomId = params.id
+    const roomId = context.params.id
     const accessToken = request.headers.get('authorization')
 
     const response = await fetch(`http://3.35.49.195:8080/api/chatrooms/${roomId}`, {
@@ -15,7 +16,7 @@ export async function GET(
     })
 
     const data = await response.json()
-    
+
     return NextResponse.json(data, { status: response.status })
   } catch (error) {
     console.error('채팅방 정보 조회 오류:', error)
@@ -24,4 +25,4 @@ export async function GET(
       { status: 500 }
     )
   }
-} 
+}
