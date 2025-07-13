@@ -587,58 +587,6 @@ export default function ProfilePage() {
             </div>
           )}
         </section>
-        <Tabs defaultValue="settings" className="mt-8 bg-white rounded-lg shadow">
-          <TabsList className="grid grid-cols-2">
-            <TabsTrigger value="settings" className="flex items-center justify-center py-3 font-medium">
-              <Settings className="mr-2" /> 설정
-            </TabsTrigger>
-            <TabsTrigger value="info" className="flex items-center justify-center py-3 font-medium">
-              <User className="mr-2" /> 추가정보
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="settings" className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">닉네임</label>
-                <Input value={nickname} disabled className="w-full" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">이메일</label>
-                <Input value={email} disabled className="w-full" />
-              </div>
-            </div>
-            <div className="mt-6 flex justify-end">
-              <Button className="bg-orange-500 hover:bg-orange-600">
-                <Save className="mr-2" /> 저장
-              </Button>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="info" className="p-6">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">활동 통계</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Card className="text-center">
-                <CardContent>
-                  <p className="text-2xl font-bold text-orange-500">12</p>
-                  <p className="text-gray-600">작성글</p>
-                </CardContent>
-              </Card>
-              <Card className="text-center">
-                <CardContent>
-                  <p className="text-2xl font-bold text-orange-500">34</p>
-                  <p className="text-gray-600">댓글</p>
-                </CardContent>
-              </Card>
-              <Card className="text-center">
-                <CardContent>
-                  <p className="text-2xl font-bold text-orange-500">5</p>
-                  <p className="text-gray-600">좋아요</p>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-        </Tabs>
       </main>
       <Footer />
     </div>
