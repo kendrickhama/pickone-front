@@ -200,9 +200,17 @@ export default function BandsPage() {
 
       <div className="max-w-7xl mx-auto px-4 py-8 pt-24">
         {/* Page Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">밴드 공연</h1>
-          <p className="text-gray-600">인디 밴드들의 공연 정보를 확인하세요</p>
+        <div className="mb-8 flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">밴드 공연</h1>
+            <p className="text-gray-600">인디 밴드들의 공연 정보를 확인하세요</p>
+          </div>
+          <Button 
+            onClick={() => window.location.href = '/band/register'} 
+            className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
+          >
+            밴드 등록하기
+          </Button>
         </div>
 
         {/* 오늘의 공연 */}
