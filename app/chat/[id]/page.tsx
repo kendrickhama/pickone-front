@@ -44,9 +44,15 @@ export default function ChatRoomPage() {
 
   // WebSocket + STOMP 연결
   useEffect(() => {
+    const accessToken = localStorage.getItem("accessToken")
+    const userId = localStorage.getItem("userId")
     const socket = new SockJS("http://3.35.49.195:8080/ws")
     const client = new Client({
       webSocketFactory: () => socket as any,
+      connectHeaders: {
+        Authorization: `Bearer ${accessToken}`,
+        userId: userId || ""
+      },
       onConnect: () => {
         client.subscribe(`/topic/room.${roomId}`, (msg: Message) => {
           const body = JSON.parse(msg.body)

@@ -100,8 +100,8 @@ export default function ProfilePage() {
         }
         const [res, fRes, foRes] = await Promise.all([
           fetch(`/api/users/${id}`, { cache: "no-store" }),
-          fetch(`/api/follow/followings/${id}`, { cache: "no-store" }),
-          fetch(`/api/follow/followers/${id}`, { cache: "no-store" }),
+          fetch(`/api/follow/followings?userId=${id}`, { cache: "no-store" }),
+          fetch(`/api/follow/followers?userId=${id}`, { cache: "no-store" }),
         ])
         if (!res.ok) return notFound()
         const json: ApiResponse = await res.json()
