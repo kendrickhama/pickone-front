@@ -45,24 +45,88 @@ export default function NotificationsPage() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    const userId = localStorage.getItem("userId")
-    if (!userId) {
-      setError("로그인이 필요합니다.")
-      setLoading(false)
-      return
-    }
-    fetch(`/api/notifications/${userId}`)
-      .then(res => res.json())
-      .then(json => {
+    const fetchNotifications = async () => {
+      const accessToken = localStorage.getItem("accessToken")
+      
+      if (!accessToken) {
+        setError("인증 토큰이 없습니다. 다시 로그인해주세요.")
+        setLoading(false)
+        return
+      }
+
+      try {
+        const response = await fetch(`/api/notifications`, {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+          }
+        })
+
+        if (!response.ok) {
+          if (response.status === 401) {
+            setError("인증이 만료되었습니다. 다시 로그인해주세요.")
+          } else {
+            setError("알림을 불러오지 못했습니다.")
+          }
+          setLoading(false)
+          return
+        }
+
+        const json = await response.json()
         if (json.isSuccess && Array.isArray(json.result)) {
           setNotifications(json.result)
         } else {
           setError("알림을 불러오지 못했습니다.")
         }
-      })
-      .catch(() => setError("알림을 불러오지 못했습니다."))
-      .finally(() => setLoading(false))
+      } catch (error) {
+        console.error('알림 데이터 가져오기 실패:', error)
+        setError("알림을 불러오지 못했습니다.")
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchNotifications()
   }, [])
+
+  const handleNotificationClick = async (notification: Notification) => {
+    if (notification.status === "READ") return
+
+    const accessToken = localStorage.getItem("accessToken")
+    if (!accessToken) {
+      setError("인증 토큰이 없습니다. 다시 로그인해주세요.")
+      return
+    }
+
+    // optimistic update
+    setNotifications((prev) => prev.map((item) =>
+      item.id === notification.id ? { ...item, status: "READ" } : item
+    ))
+
+    try {
+      const response = await fetch(`/api/notifications/${notification.id}/read`, { 
+        method: "PATCH",
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        }
+      })
+
+      if (!response.ok) {
+        // 실패 시 다시 UNREAD로 롤백
+        setNotifications((prev) => prev.map((item) =>
+          item.id === notification.id ? { ...item, status: "UNREAD" } : item
+        ))
+        console.error('알림 읽음 처리 실패')
+      }
+    } catch (error) {
+      // 실패 시 다시 UNREAD로 롤백
+      setNotifications((prev) => prev.map((item) =>
+        item.id === notification.id ? { ...item, status: "UNREAD" } : item
+      ))
+      console.error('알림 읽음 처리 실패:', error)
+    }
+  }
 
   return (
     <div className="min-h-screen bg-white">
@@ -83,21 +147,7 @@ export default function NotificationsPage() {
               <li
                 key={n.id}
                 className={`flex items-start gap-4 py-5 transition-colors ${n.status === "UNREAD" ? "bg-[#FFF9F3]" : "bg-white"}`}
-                onClick={async () => {
-                  if (n.status === "READ") return;
-                  // optimistic update
-                  setNotifications((prev) => prev.map((item) =>
-                    item.id === n.id ? { ...item, status: "READ" } : item
-                  ));
-                  try {
-                    await fetch(`/api/notifications/${n.id}/read`, { method: "PATCH" });
-                  } catch (e) {
-                    // 실패 시 다시 UNREAD로 롤백 (선택)
-                    setNotifications((prev) => prev.map((item) =>
-                      item.id === n.id ? { ...item, status: "UNREAD" } : item
-                    ));
-                  }
-                }}
+                onClick={() => handleNotificationClick(n)}
                 style={{ cursor: n.status === "UNREAD" ? "pointer" : "default" }}
               >
                 <div className="mt-1">{typeIconMap[n.type] || <Bell className="w-5 h-5 text-gray-400" />}</div>
