@@ -10,20 +10,36 @@ import { useParams, useRouter } from 'next/navigation'
 export default function ChatRoomPage() {
   const params = useParams()
   const router = useRouter()
-  const roomId = Number(params.id)
+  // roomId 파싱: string 또는 string[] 모두 안전하게 처리
+  const roomId = Array.isArray(params.id) ? Number(params.id[0]) : Number(params.id)
   const [chatRoomName, setChatRoomName] = useState<string>(`채팅방 ${roomId}`)
   const [messages, setMessages] = useState<any[]>([])
   const [input, setInput] = useState("")
   const stompClient = useRef<Client | null>(null)
 
-  // 채팅방 이름 등 정보 조회 (REST, 필요시)
+  // 메시지 히스토리 불러오기 (JWT 필요)
   useEffect(() => {
-    fetch(`/api/chatrooms/${roomId}`)
-      .then(res => res.json())
-      .then(data => {
-        if (data?.result?.name) setChatRoomName(data.result.name)
-      })
-      .catch(() => {})
+    const fetchMessages = async () => {
+      const accessToken = localStorage.getItem("accessToken")
+      if (!accessToken) return
+      try {
+        const res = await fetch(`/api/chatrooms/${roomId}/messages`, {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+          },
+        })
+        if (res.ok) {
+          const data = await res.json()
+          if (data.isSuccess && Array.isArray(data.result)) {
+            setMessages(data.result)
+          }
+        }
+      } catch (e) {
+        // 무시
+      }
+    }
+    fetchMessages()
   }, [roomId])
 
   // WebSocket + STOMP 연결
@@ -34,6 +50,7 @@ export default function ChatRoomPage() {
       onConnect: () => {
         client.subscribe(`/topic/room.${roomId}`, (msg: Message) => {
           const body = JSON.parse(msg.body)
+          console.log("수신 메시지:", body) // 메시지 수신 로그 추가
           setMessages(msgs => [...msgs, body])
         })
       },
@@ -48,12 +65,25 @@ export default function ChatRoomPage() {
   const sendMessage = () => {
     if (!stompClient.current || !stompClient.current.connected) return
     const userId = localStorage.getItem("userId")
-    stompClient.current.publish({
-      destination: "/app/chat/send",
-      headers: { userId: userId || "" },
-      body: JSON.stringify({ roomId, content: input }),
-    })
-    setInput("")
+    const accessToken = localStorage.getItem("accessToken")
+    // roomId가 숫자인지 최종 확인
+    const numericRoomId = Number(roomId)
+    const body = { roomId: numericRoomId, content: input }
+    console.log("전송 body JSON:", JSON.stringify(body))
+    try {
+      stompClient.current.publish({
+        destination: "/app/chat/send",
+        headers: {
+          userId: userId || "",
+          Authorization: `Bearer ${accessToken}`,
+          "content-type": "application/json"
+        },
+        body: JSON.stringify(body),
+      })
+      setInput("")
+    } catch (e) {
+      console.error("메시지 전송 에러:", e)
+    }
   }
 
   return (
@@ -77,7 +107,7 @@ export default function ChatRoomPage() {
               ) : (
                 messages.map((m, i) => (
                   <div key={i} className="mb-2">
-                    <span className="font-semibold text-orange-600 mr-2">{m.senderNickname || "익명"}</span>
+                    <span className="font-semibold text-orange-600 mr-2">{m.senderNickname || m.senderId || "익명"}</span>
                     <span className="text-gray-800">{m.content}</span>
                   </div>
                 ))
