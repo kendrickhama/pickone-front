@@ -87,15 +87,15 @@ export default function ChatRoomPage() {
   }, [roomId])
 
   // 메시지 전송
-  const sendMessage = () => {
-    if (!stompClient.current || !stompClient.current.connected) return
-    const messageToSend = input.trim()
-    if (!messageToSend) return
-    setInput("") // input을 먼저 비움
-    const userId = localStorage.getItem("userId")
-    const accessToken = localStorage.getItem("accessToken")
-    const numericRoomId = Number(roomId)
-    const body = { roomId: numericRoomId, content: messageToSend }
+  const sendMessage = (message?: string) => {
+    if (!stompClient.current || !stompClient.current.connected) return;
+    const messageToSend = (typeof message === 'string' ? message : input).trim();
+    if (!messageToSend) return;
+    setInput(""); // input을 먼저 비움
+    const userId = localStorage.getItem("userId");
+    const accessToken = localStorage.getItem("accessToken");
+    const numericRoomId = Number(roomId);
+    const body = { roomId: numericRoomId, content: messageToSend };
     try {
       stompClient.current.publish({
         destination: "/app/chat/send",
@@ -105,9 +105,9 @@ export default function ChatRoomPage() {
           "content-type": "application/json"
         },
         body: JSON.stringify(body),
-      })
+      });
     } catch (e) {
-      console.error("메시지 전송 에러:", e)
+      console.error("메시지 전송 에러:", e);
     }
   }
 
@@ -130,7 +130,7 @@ export default function ChatRoomPage() {
               >채팅방 목록</button>
             </div>
             {/* 메시지 리스트 */}
-            <div 
+            <div
               ref={messagesContainerRef}
               className="flex-1 overflow-y-auto mb-4 bg-gray-50 rounded p-3 border border-gray-200"
             >
@@ -169,18 +169,28 @@ export default function ChatRoomPage() {
               <textarea
                 className="flex-1 border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400 resize-none"
                 value={input}
-                onChange={e => setInput(e.target.value)}
+                onChange={e => {
+                  setInput(e.target.value);
+                  // textarea 높이 자동 조절
+                  e.target.style.height = 'auto';
+                  e.target.style.height = `${e.target.scrollHeight}px`;
+                }}
                 onKeyDown={e => {
                   if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    sendMessage();
+                    e.preventDefault(); // 줄바꿈만 억제
+                  }
+                }}
+                onKeyUp={e => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    sendMessage(); // 메시지 전송
                   }
                 }}
                 placeholder="메시지 입력"
+                style={{ minHeight: 40, maxHeight: 120, overflowY: 'auto' }}
                 rows={1}
               />
               <button
-                onClick={sendMessage}
+                onClick={() => sendMessage()}
                 className="flex items-center justify-center w-10 h-10 rounded-full bg-orange-500 hover:bg-orange-600 transition-colors shadow text-white focus:outline-none focus:ring-2 focus:ring-orange-400"
                 aria-label="메시지 보내기"
                 type="button"
