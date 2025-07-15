@@ -68,9 +68,9 @@ export default function NotificationsPage() {
           } else {
             setError("알림을 불러오지 못했습니다.")
           }
-          setLoading(false)
-          return
-        }
+      setLoading(false)
+      return
+    }
 
         const json = await response.json()
         if (json.isSuccess && Array.isArray(json.result)) {

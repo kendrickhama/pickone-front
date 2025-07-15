@@ -150,7 +150,7 @@ export default function ChatRoomsPage() {
               {chatRooms.map((room) => (
                 <div
                   key={room.id}
-                  onClick={() => router.push(`/chat/${room.id}`)}
+                  onClick={() => router.push(`/chat/${room.id}?roomName=${encodeURIComponent(room.name)}`)}
                   className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 cursor-pointer hover:shadow-md transition-shadow"
                 >
                   <div className="flex items-center justify-between">
