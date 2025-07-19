@@ -154,19 +154,19 @@ export default function GenreEditPage() {
     useEffect(() => {
         const userId = localStorage.getItem("userId")
         if (!userId) return
-            ; (async () => {
-                try {
-                    const res = await fetch(`/api/users/${userId}/preference`)
-                    const data = await res.json()
-                    const genreObj = data.result?.genres
-                    if (genreObj) {
-                        const genreArray = Object.values(genreObj) as string[] // 타입 단언 추가
-                        setSelectedGenres(genreArray)
-                    }
-                } catch (e) {
-                    console.error("Failed to load genre preference", e)
+        ;(async () => {
+            try {
+                const res = await fetch(`/api/users/${userId}`)
+                const data = await res.json()
+                const genreObj = data.result?.preference
+                if (genreObj) {
+                    const genreArray = Object.values(genreObj).filter(Boolean) as string[]
+                    setSelectedGenres(genreArray)
                 }
-            })()
+            } catch (e) {
+                console.error("Failed to load genre preference", e)
+            }
+        })()
     }, [])
 
     const toggleGenre = (genre: string) => {
@@ -184,9 +184,13 @@ export default function GenreEditPage() {
         setError("")
 
         try {
+            const accessToken = localStorage.getItem("accessToken")
             const res = await fetch(`/api/users/${userId}/preference`, {
                 method: "PATCH",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    "Content-Type": "application/json",
+                    ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {})
+                },
                 body: JSON.stringify({ genres: selectedGenres }),
             })
             const data = await res.json()

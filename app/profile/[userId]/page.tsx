@@ -163,9 +163,13 @@ export default function UserProfilePage() {
     setFollowLoading(true);
     setFollowError(null);
     try {
+      const accessToken = localStorage.getItem("accessToken");
       const res = await fetch("/api/follow", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {})
+        },
         body: JSON.stringify({ fromUserId: currentUserId, toUserId: Number(userId) })
       });
       const json = await res.json();
@@ -273,7 +277,7 @@ export default function UserProfilePage() {
         {/* 프로필 카드 */}
         <Card className="flex flex-col md:flex-row items-center bg-white/80 border border-gray-200 shadow-xl rounded-2xl overflow-hidden py-10 px-8 mb-12 transition-all">
           <div className="flex-shrink-0 flex flex-col items-center justify-center mr-0 md:mr-10">
-            <div className="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden border-2 border-orange-200 shadow bg-gray-100 flex items-center justify-center">
+            <div className="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden border-2 border-gray-300 shadow bg-gray-100 flex items-center justify-center">
               <img
                 src={profileImageUrl || "https://pickone-web-assets-2025.s3.ap-northeast-2.amazonaws.com/profiles/%E1%84%80%E1%85%B5%E1%84%87%E1%85%A9%E1%86%AB%E1%84%8B%E1%85%B5%E1%84%86%E1%85%B5%E1%84%8C%E1%85%B5.png"}
                 alt={nickname}

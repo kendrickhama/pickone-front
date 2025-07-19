@@ -103,14 +103,17 @@ export default function ProfileEditPage() {
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault()
-        const userId = localStorage.getItem("userId")
-        if (!userId) return
+        // userId는 더 이상 필요 없음
         setSaving(true)
         setError("")
         try {
-            const res = await fetch(`/api/users/${userId}/profile`, {
+            const accessToken = localStorage.getItem("accessToken")
+            const res = await fetch(`/api/users/profile`, {
                 method: "PATCH",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    "Content-Type": "application/json",
+                    ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {})
+                },
                 body: JSON.stringify({ ...form, profileImageUrl }),
             })
             const text = await res.text()

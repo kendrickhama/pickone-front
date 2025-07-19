@@ -315,24 +315,8 @@ export default function ProfilePage() {
               {isPublic ? "공개" : "비공개"}
             </Badge>
           </div>
-          {/* 정보 영역 + 공유 버튼 */}
+          {/* 정보 영역 */}
           <div className="flex-1 flex flex-col justify-center items-center md:items-start mt-8 md:mt-0 w-full relative">
-            {/* 공유 버튼 */}
-            <button
-              onClick={() => {
-                if (!userData?.id) return;
-                const shareUrl = `${window.location.origin}/profile/${userData.id}`;
-                navigator.clipboard.writeText(shareUrl)
-                  .then(() => alert('프로필 링크가 복사되었습니다!'))
-                  .catch(() => alert('복사에 실패했습니다.'));
-              }}
-              className="absolute top-0 right-0 md:static md:self-end flex items-center gap-1 px-3 py-2 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 shadow transition-all border border-gray-200 mb-2"
-              title="프로필 공유"
-              type="button"
-            >
-              <Share2 className="w-5 h-5" />
-              <span className="hidden md:inline text-sm font-medium">공유</span>
-            </button>
             {/* 닉네임 & 이메일 */}
             <div className="flex flex-col items-center md:items-start mb-3">
               <h1 className="text-3xl font-bold text-gray-900 mb-1 tracking-tight">{nickname}</h1>
@@ -421,6 +405,39 @@ export default function ProfilePage() {
                 <Button variant="outline" onClick={() => router.push("/profile/edit")}>프로필 수정</Button>
               </div>
             )}
+          </div>
+          {/* 사운드클라우드 플레이어: 카드 오른쪽 */}
+          <div className="w-full md:w-80 flex flex-col justify-center items-center mt-8 md:mt-0 md:ml-8">
+            <span className="mb-2 text-xs text-gray-500 font-semibold tracking-wide">SoundCloud Player</span>
+            <div className="w-full max-w-[320px] rounded-lg overflow-hidden shadow border border-gray-300 bg-gray-900 flex items-center justify-center">
+              <iframe
+                width="100%"
+                height="120"
+                scrolling="no"
+                frameBorder="no"
+                allow="autoplay"
+                src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/32rgf83kkjzt/roy?si=91dd14b499ab4d57bcdf6fd1187e839f&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=false"
+                title="SoundCloud Player"
+              ></iframe>
+            </div>
+            {/* 공유 버튼: 플레이어 아래, 오른쪽 정렬 */}
+            <div className="w-full flex justify-end mt-3">
+              <button
+                onClick={() => {
+                  if (!userData?.id) return;
+                  const shareUrl = `${window.location.origin}/profile/${userData.id}`;
+                  navigator.clipboard.writeText(shareUrl)
+                    .then(() => alert('프로필 링크가 복사되었습니다!'))
+                    .catch(() => alert('복사에 실패했습니다.'));
+                }}
+                className="flex items-center gap-1 px-3 py-2 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 shadow transition-all border border-gray-200"
+                title="프로필 공유"
+                type="button"
+              >
+                <Share2 className="w-5 h-5" />
+                <span className="hidden md:inline text-sm font-medium">공유</span>
+              </button>
+            </div>
           </div>
         </Card>
         <p className="text-[#292929] pt-4 font-normal text-xl">Top 5 Album</p>
