@@ -5,6 +5,7 @@ import Footer from "@/components/footer"
 import { Card, CardContent } from "@/components/ui/card"
 import { useEffect, useState } from "react"
 import Link from "next/link"
+import { useSearchParams } from "next/navigation";
 
 interface FollowerItem {
   id: number;
@@ -17,35 +18,52 @@ export default function FollowersPage() {
   const [nickname, setNickname] = useState<string | null>(null);
   const [followers, setFollowers] = useState<FollowerItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchData = async () => {
+    // 클라이언트에서만 localStorage 접근
+    if (typeof window !== "undefined") {
       const id = localStorage.getItem("userId");
+      setUserId(id);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!userId) {
+      setLoading(false);
+      return;
+    }
+    const fetchData = async () => {
       let nick = null;
-      if (id) {
-        // fetch user profile for nickname
-        const userRes = await fetch(`/api/users/${id}`);
-        if (userRes.ok) {
-          const userJson = await userRes.json();
-          if (userJson.isSuccess && userJson.result?.nickname) {
-            nick = userJson.result.nickname;
-          }
+      // 닉네임 fetch
+      const userRes = await fetch(`/api/users/${userId}`);
+      if (userRes.ok) {
+        const userJson = await userRes.json();
+        if (userJson.isSuccess && userJson.result?.nickname) {
+          nick = userJson.result.nickname;
         }
-        // fetch followers
-        const base = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:3000";
-        const res = await fetch(`/api/follow/followers/${id}`);
-        if (res.ok) {
-          const data = await res.json();
-          if (data.isSuccess && Array.isArray(data.result)) {
-            setFollowers(data.result);
-          }
+      }
+      // fetch followers (query parameter)
+      const res = await fetch(`/api/follow/followers?userId=${userId}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.isSuccess && Array.isArray(data.result)) {
+          setFollowers(data.result);
         }
       }
       setNickname(nick);
       setLoading(false);
     };
     fetchData();
-  }, []);
+  }, [userId]);
+
+  if (!userId && !loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-gray-500">로그인이 필요합니다.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">

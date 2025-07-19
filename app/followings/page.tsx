@@ -31,9 +31,8 @@ export default function FollowingsPage() {
             nick = userJson.result.nickname;
           }
         }
-        // fetch followings
-        const base = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:3000";
-        const res = await fetch(`/api/follow/followings/${id}`);
+        // fetch followings (query parameter)
+        const res = await fetch(`/api/follow/followings?userId=${id}`);
         if (res.ok) {
           const data = await res.json();
           if (data.isSuccess && Array.isArray(data.result)) {
@@ -71,7 +70,7 @@ export default function FollowingsPage() {
                 <Card className="flex items-center gap-5 p-6 bg-white/90 border border-gray-200 rounded-2xl shadow-lg hover:shadow-2xl hover:bg-orange-50/40 transition-all cursor-pointer">
                   <div className="flex-shrink-0">
                     <img
-                      src="/default-avatar.png"
+                      src="https://pickone-web-assets-2025.s3.ap-northeast-2.amazonaws.com/profiles/%E1%84%80%E1%85%B5%E1%84%87%E1%85%A9%E1%86%AB%E1%84%8B%E1%85%B5%E1%84%86%E1%85%B5%E1%84%8C%E1%85%B5.png"
                       alt={`user-${f.toUserId}`}
                       className="w-20 h-20 rounded-full object-cover border border-gray-200 shadow group-hover:border-orange-400 group-hover:shadow-orange-200 transition-all"
                     />
