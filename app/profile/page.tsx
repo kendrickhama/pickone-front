@@ -318,9 +318,9 @@ export default function ProfilePage() {
           {/* 정보 영역 */}
           <div className="flex-1 flex flex-col justify-center items-center md:items-start mt-8 md:mt-0 w-full relative">
             {/* 닉네임 & 이메일 */}
-            <div className="flex flex-col items-center md:items-start mb-3">
-              <h1 className="text-3xl font-bold text-gray-900 mb-1 tracking-tight">{nickname}</h1>
-              <p className="text-gray-500 text-base">{email}</p>
+            <div className="flex flex-col items-center md:items-start mb-2">
+              <h1 className="text-4xl font-extrabold text-gray-950 mb-2 tracking-tight leading-tight">{nickname}</h1>
+              <p className="text-gray-400 text-sm font-medium mb-0">{email}</p>
             </div>
             {/* 팔로워/팔로잉 */}
             <div className="flex items-center space-x-8 mb-4">
@@ -337,7 +337,7 @@ export default function ProfilePage() {
               </Link>
             </div>
             {/* MBTI, 악기, 장르 */}
-            <div className="flex flex-wrap gap-2 mb-4">
+            <div className="flex flex-wrap gap-2 mb-0 mt-2">
               <Badge variant="outline" className="flex items-center space-x-1 text-xs px-3 py-1">
                 <span>{mbti}</span>
               </Badge>
@@ -356,8 +356,11 @@ export default function ProfilePage() {
                   </Badge>
                 </span>
               )}
-              {preference && (
-                (typeof preference === "string" ? [preference] : Object.values(preference))
+            </div>
+            {/* 좋아하는 장르 태그: 항상 한 줄 아래에 분리 */}
+            {preference && (
+              <div className="flex flex-wrap gap-2 mb-4 mt-2 w-full">
+                {(typeof preference === "string" ? [preference] : Object.values(preference))
                   .filter((g) => !!g)
                   .map((g) => {
                     const textColor = genreColorMap[g] || 'text-orange-700'
@@ -369,9 +372,9 @@ export default function ProfilePage() {
                         {g.replace(/_/g, " ")}
                       </Badge>
                     )
-                  })
-              )}
-            </div>
+                  })}
+              </div>
+            )}
             {/* 자기소개 */}
             <div className="w-full max-w-xl text-center md:text-left mb-2">
               {introduction ? (
@@ -440,29 +443,46 @@ export default function ProfilePage() {
             </div>
           </div>
         </Card>
-        <p className="text-[#292929] pt-4 font-normal text-xl">Top 5 Album</p>
-        <div className="flex gap-4 pt-4 w-full">
-          {[
-            "https://i.scdn.co/image/ab67616d0000b2733303a842ee1bc0b23204333d",
-            "https://i.scdn.co/image/ab67616d0000b2739293c743fa542094336c5e12",
-            "https://i.scdn.co/image/ab67616d0000b27304f4a7915e062a1282289073",
-            "https://i.scdn.co/image/ab67616d0000b273ea7caaff71dea1051d49b2fe",
-            "https://i.scdn.co/image/ab67616d0000b2733ed60b59aaa75ed572d7fc30",
-          ].map((src, idx) => (
-            <div key={src} className="flex-1 min-w-0 aspect-square">
-              <img
-                src={src}
-                alt={`Album ${idx + 1}`}
-                className="w-full h-full object-cover rounded-lg shadow"
-                style={{ aspectRatio: '1/1' }}
-              />
-            </div>
-          ))}
+        {/* Top 5 Album Section - 카드 스타일, 앨범명/아티스트명, 헤더에 아이콘 */}
+        <div className="mt-12 mb-12">
+          <div className="flex items-center gap-2 mb-4">
+            <svg className="w-6 h-6 text-orange-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="M8 12l2 2 4-4" /></svg>
+            <p className="text-2xl font-bold text-orange-600 tracking-tight">Top 5 Album</p>
+          </div>
+          <div className="flex gap-6 w-full">
+            {[
+              { src: "https://i.scdn.co/image/ab67616d0000b2733303a842ee1bc0b23204333d", title: "Album One", artist: "Artist A" },
+              { src: "https://i.scdn.co/image/ab67616d0000b2739293c743fa542094336c5e12", title: "Album Two", artist: "Artist B" },
+              { src: "https://i.scdn.co/image/ab67616d0000b27304f4a7915e062a1282289073", title: "Album Three", artist: "Artist C" },
+              { src: "https://i.scdn.co/image/ab67616d0000b273ea7caaff71dea1051d49b2fe", title: "Album Four", artist: "Artist D" },
+              { src: "https://i.scdn.co/image/ab67616d0000b2733ed60b59aaa75ed572d7fc30", title: "Album Five", artist: "Artist E" },
+            ].map((album, idx) => (
+              <div key={album.src} className="flex-1 min-w-0">
+                <div className="bg-white rounded-xl shadow border border-gray-200 flex flex-col items-center p-3">
+                  <div className="w-full aspect-square mb-2 overflow-hidden rounded-lg">
+                    <img
+                      src={album.src}
+                      alt={`Album ${idx + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="w-full text-center">
+                    <p className="text-base font-semibold text-gray-900 truncate">{album.title}</p>
+                    <p className="text-xs text-gray-500">{album.artist}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
-
-        {/* Album Slider Section */}
-        <section className="mt-8">
-          <h2 className="text-xl font-normal text-[#292929] mb-3">{nickname} 님의 갤러리</h2>
+        {/* 섹션 구분선 */}
+        <div className="w-full border-t border-gray-200 my-12" />
+        {/* Album Slider Section - 갤러리, 어두운 배경, 카메라 아이콘, 썸네일만 */}
+        <section className="mt-0 bg-gray-50 rounded-2xl py-8 px-2 shadow-inner">
+          <div className="flex items-center gap-2 mb-3">
+            <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2" /><circle cx="12" cy="13" r="4" /><path d="M8 7V5a4 4 0 0 1 8 0v2" /></svg>
+            <h2 className="text-xl font-bold text-gray-700">{nickname} 님의 갤러리</h2>
+          </div>
           <div className="relative" style={{ minHeight: '240px' }}>
             <button
               className="absolute left-0 z-10 bg-white/80 hover:bg-orange-100 border rounded-full w-10 h-10 flex items-center justify-center disabled:opacity-30"
@@ -472,20 +492,18 @@ export default function ProfilePage() {
             >
               <ChevronLeft className="w-6 h-6 text-gray-500" />
             </button>
-
             <div
               ref={containerRef}
               className="overflow-x-auto scrollbar-hide snap-x snap-mandatory flex gap-6 px-10 py-1"
             >
               {albumImages.map((img, idx) => (
                 <div key={idx} className="snap-start flex-shrink-0 min-w-[170px]">
-                  <div className="w-[170px] h-[226px] rounded-xl overflow-hidden shadow border bg-gray-100">
+                  <div className="w-[170px] h-[226px] rounded-xl overflow-hidden shadow border bg-gray-200">
                     <img src={img.url} alt={`album-${idx}`} className="w-full h-full object-cover" />
                   </div>
                 </div>
               ))}
             </div>
-
             <button
               className="absolute right-0 z-10 bg-white/80 hover:bg-orange-100 border rounded-full w-10 h-10 flex items-center justify-center disabled:opacity-30"
               style={{ top: '50%', transform: 'translateY(-50%)' }}
@@ -494,7 +512,6 @@ export default function ProfilePage() {
             >
               <ChevronRight className="w-6 h-6 text-gray-500" />
             </button>
-
             <div
               ref={progressBarRef}
               className="w-full h-2 bg-gray-100 rounded-full mt-4 absolute left-0 bottom-0 cursor-pointer"
