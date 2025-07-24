@@ -56,13 +56,8 @@ export default function UserProfilePage() {
   const [followError, setFollowError] = useState<string | null>(null)
 
   // 앨범 슬라이더 관련
-  const albumImages = [
-    { url: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR70z5enUakifRegyzhIKcTD9tW4sBQ1PuErg&s" },
-    { url: "https://i.namu.wiki/i/4lrnp8YbRn-JqsdDN1AY62ycbjlJ3BrRICTPFA6oCbVxHW3ysObQ4VEGE_0igIJ46klaC-jrwU8MQAP-ZLWuWg.webp" },
-    { url: "https://img1.daumcdn.net/thumb/R800x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FbjmsNN%2FbtrLjjtmyDR%2FAAAAAAAAAAAAAAAAAAAAAGD7eH6hs6xIjqkzPGlB5FCkRSGdZtF-8gLPExtxR_0U%2Fimg.jpg%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1753973999%26allow_ip%3D%26allow_referer%3D%26signature%3DMHmCF47%252BWxItr%252F%252B2gnhfGvdsA6s%253D" },
-    { url: "https://image-cdn.hypb.st/https%3A%2F%2Fkr.hypebeast.com%2Ffiles%2F2023%2F04%2Fsilica-gel-ep-machine-boy-interview-info-3.jpg?w=1260&cbr=1&q=90&fit=max" },
-    { url: "https://pbs.twimg.com/media/FjtLS5EUoAAW_94.jpg:large" },
-  ];
+  const [albumImages, setAlbumImages] = useState<{ id: number, url: string, caption: string | null, uploadedAt: string }[]>([]);
+  const [galleryLoading, setGalleryLoading] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
   const progressBarRef = useRef<HTMLDivElement>(null);
   const [scrollProgress, setScrollProgress] = useState(0);
@@ -119,6 +114,23 @@ export default function UserProfilePage() {
       .catch(() => setUserRecruits([]))
       .finally(() => setRecruitsLoading(false))
   }, [userId])
+
+  // 갤러리 이미지 API 연동
+  useEffect(() => {
+    if (!userId) return;
+    setGalleryLoading(true);
+    fetch(`/api/users/gallery/${userId}`)
+      .then(res => res.json())
+      .then(json => {
+        if (json.isSuccess && Array.isArray(json.result)) {
+          setAlbumImages(json.result);
+        } else {
+          setAlbumImages([]);
+        }
+      })
+      .catch(() => setAlbumImages([]))
+      .finally(() => setGalleryLoading(false));
+  }, [userId]);
 
   useEffect(() => {
     const c = containerRef.current
@@ -396,13 +408,19 @@ export default function UserProfilePage() {
               ref={containerRef}
               className="overflow-x-auto scrollbar-hide snap-x snap-mandatory flex gap-6 px-10 py-1"
             >
-              {albumImages.map((img, idx) => (
-                <div key={idx} className="snap-start flex-shrink-0 min-w-[170px]">
-                  <div className="w-[170px] h-[226px] rounded-xl overflow-hidden shadow border bg-gray-100">
-                    <img src={img.url} alt={`album-${idx}`} className="w-full h-full object-cover" />
+              {galleryLoading ? (
+                <div className="text-gray-400 text-lg flex items-center justify-center w-full h-40">로딩 중...</div>
+              ) : albumImages.length === 0 ? (
+                <div className="text-gray-400 text-lg flex items-center justify-center w-full h-40">갤러리 이미지가 없습니다.</div>
+              ) : (
+                albumImages.map((img, idx) => (
+                  <div key={img.id} className="snap-start flex-shrink-0 min-w-[170px]">
+                    <div className="w-[170px] h-[226px] rounded-xl overflow-hidden shadow border bg-gray-100">
+                      <img src={img.url} alt={`gallery-${idx}`} className="w-full h-full object-cover" />
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
             <button
               className="absolute right-0 z-10 bg-white/80 hover:bg-orange-100 border rounded-full w-10 h-10 flex items-center justify-center disabled:opacity-30"

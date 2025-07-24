@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Edit, Save, MapPin, User, Settings, Info, UserSearch, Music, Search, Calendar, Heart, Share2, ChevronLeft, ChevronRight } from "lucide-react"
+import { Edit, Save, MapPin, User, Settings, Info, UserSearch, Music, Search, Calendar, Heart, Share2, ChevronLeft, ChevronRight, Trash2, Pencil } from "lucide-react"
 import Navigation from "@/components/navigation"
 import Footer from "@/components/footer"
 import { useRouter, notFound } from "next/navigation"
@@ -57,26 +57,79 @@ export default function ProfilePage() {
   const [recruitsLoading, setRecruitsLoading] = useState(true)
 
   // Album gallery slider hooks (all at top level)
-  const albumImages = [
-    { url: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR70z5enUakifRegyzhIKcTD9tW4sBQ1PuErg&s" },
-    { url: "https://i.namu.wiki/i/4lrnp8YbRn-JqsdDN1AY62ycbjlJ3BrRICTPFA6oCbVxHW3ysObQ4VEGE_0igIJ46klaC-jrwU8MQAP-ZLWuWg.webp" },
-    { url: "https://img1.daumcdn.net/thumb/R800x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FbjmsNN%2FbtrLjjtmyDR%2FAAAAAAAAAAAAAAAAAAAAAGD7eH6hs6xIjqkzPGlB5FCkRSGdZtF-8gLPExtxR_0U%2Fimg.jpg%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1753973999%26allow_ip%3D%26allow_referer%3D%26signature%3DMHmCF47%252BWxItr%252F%252B2gnhfGvdsA6s%253D" },
-    { url: "https://image-cdn.hypb.st/https%3A%2F%2Fkr.hypebeast.com%2Ffiles%2F2023%2F04%2Fsilica-gel-ep-machine-boy-interview-info-3.jpg?w=1260&cbr=1&q=90&fit=max" },
-    { url: "https://pbs.twimg.com/media/FjtLS5EUoAAW_94.jpg:large" },
-    { url: "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80&ixid=1" },
-    { url: "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80&ixid=2" },
-    { url: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80&ixid=3" },
-    { url: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=400&q=80&ixid=4" },
-    { url: "https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=400&q=80&ixid=5" },
-    { url: "https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=400&q=80&ixid=6" },
-    { url: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80&ixid=7" },
-  ];
+  // 갤러리 이미지 상태 (API 연동)
+  const [galleryImages, setGalleryImages] = useState<{ id: number, url: string, caption: string | null, uploadedAt: string }[]>([]);
+  const [galleryLoading, setGalleryLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
+  const [editMode, setEditMode] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const progressBarRef = useRef<HTMLDivElement>(null);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
   const [isBarDragging, setIsBarDragging] = useState(false);
+
+  // 갤러리 업로드 핸들러
+  const handleGalleryUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const accessToken = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+    if (!accessToken) {
+      alert('로그인이 필요합니다.');
+      return;
+    }
+    setUploading(true);
+    const formData = new FormData();
+    formData.append('file', file);
+    try {
+      const res = await fetch('http://3.35.49.195:8080/api/users/gallery', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+        },
+        body: formData,
+      });
+      const json = await res.json();
+      if (json.isSuccess) {
+        // 새로고침
+        setGalleryImages(prev => [json.result, ...prev]);
+        alert('업로드 성공!');
+      } else {
+        alert('업로드 실패: ' + (json.message || '오류'));
+      }
+    } catch (err) {
+      alert('업로드 중 오류 발생');
+    } finally {
+      setUploading(false);
+      e.target.value = '';
+    }
+  };
+
+  // 갤러리 삭제 핸들러
+  const handleGalleryDelete = async (id: number) => {
+    if (!window.confirm('정말 삭제하시겠습니까?')) return;
+    const accessToken = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+    if (!accessToken) {
+      alert('로그인이 필요합니다.');
+      return;
+    }
+    try {
+      const res = await fetch(`http://3.35.49.195:8080/api/users/gallery/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+        },
+      });
+      const json = await res.json();
+      if (json.isSuccess) {
+        setGalleryImages(prev => prev.filter(img => img.id !== id));
+      } else {
+        alert('삭제 실패: ' + (json.message || '오류'));
+      }
+    } catch (err) {
+      alert('삭제 중 오류 발생');
+    }
+  };
 
   // 스크롤 위치가 바뀔 때마다 진행도와 버튼 활성화 계산
   const updateScroll = () => {
@@ -142,7 +195,30 @@ export default function ProfilePage() {
       c.removeEventListener("scroll", updateScroll)
       window.removeEventListener("resize", updateScroll)
     }
-  }, [albumImages])
+  }, [galleryImages])
+
+  // 갤러리 이미지 API 연동
+  useEffect(() => {
+    const accessToken = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+    if (!accessToken) return;
+    if (!currentUserId) return;
+    setGalleryLoading(true);
+    fetch(`/api/users/gallery/${currentUserId}`, {
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+      },
+    })
+      .then(res => res.json())
+      .then(json => {
+        if (json.isSuccess && Array.isArray(json.result)) {
+          setGalleryImages(json.result);
+        } else {
+          setGalleryImages([]);
+        }
+      })
+      .catch(() => setGalleryImages([]))
+      .finally(() => setGalleryLoading(false));
+  }, [currentUserId]);
 
   // 4. 슬라이드바 드래그 이벤트 등록
   useEffect(() => {
@@ -272,6 +348,61 @@ export default function ProfilePage() {
     c.scrollLeft = max * ratio;
   };
 
+  // 사용자 닉네임/이메일로 검색해서 해당 프로필로 이동하는 컴포넌트
+  function UserSearchBar() {
+    const [keyword, setKeyword] = useState("");
+    const [loading, setLoading] = useState(false);
+    const router = useRouter();
+
+    const handleSubmit = async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!keyword.trim()) return;
+      setLoading(true);
+      try {
+        // GET 요청, 쿼리스트링에 nicknames 배열로 전달
+        const params = new URLSearchParams();
+        params.append('nicknames', keyword.trim());
+        const res = await fetch(`/api/users/resolve-ids?${params.toString()}`);
+        const json = await res.json();
+        if (json.isSuccess && Array.isArray(json.result) && json.result.length > 0) {
+          // 첫 번째 유저의 id로 이동
+          router.push(`/profile/${json.result[0].id}`);
+        } else {
+          alert("사용자를 찾을 수 없습니다.");
+        }
+      } catch (err) {
+        alert("검색 중 오류 발생");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    return (
+      <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row items-center gap-3 max-w-2xl w-full mx-auto">
+        <div className="relative flex-1 w-full">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+          <input
+            type="text"
+            name="keyword"
+            placeholder="닉네임 또는 이메일로 검색"
+            className="w-full pl-12 pr-4 py-3 rounded-full border border-gray-200 shadow focus:outline-none focus:ring-2 focus:ring-orange-400 text-base bg-white"
+            value={keyword}
+            onChange={e => setKeyword(e.target.value)}
+            disabled={loading}
+          />
+        </div>
+        <button
+          type="submit"
+          className="flex items-center justify-center bg-orange-500 hover:bg-orange-600 text-white font-semibold text-base px-6 py-3 rounded-full shadow transition-all focus:outline-none focus:ring-2 focus:ring-orange-400"
+          style={{ minWidth: 120 }}
+          disabled={loading}
+        >
+          {loading ? "검색 중..." : "검색"}
+        </button>
+      </form>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#FFFFFF]">
       <Navigation />
@@ -279,24 +410,7 @@ export default function ProfilePage() {
       <main className="max-w-7xl mx-auto px-4 pt-20">
         {/*검색 영역 - 개선된 modern 스타일*/}
         <section className="mb-8">
-          <form action="/userSearch" method="get" className="flex flex-col sm:flex-row items-center gap-3 max-w-2xl w-full mx-auto">
-            <div className="relative flex-1 w-full">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-              <input
-                type="text"
-                name="keyword"
-                placeholder="닉네임 또는 이메일로 검색"
-                className="w-full pl-12 pr-4 py-3 rounded-full border border-gray-200 shadow focus:outline-none focus:ring-2 focus:ring-orange-400 text-base bg-white"
-              />
-            </div>
-            <button
-              type="submit"
-              className="flex items-center justify-center bg-orange-500 hover:bg-orange-600 text-white font-semibold text-base px-6 py-3 rounded-full shadow transition-all focus:outline-none focus:ring-2 focus:ring-orange-400"
-              style={{ minWidth: 120 }}
-            >
-              검색
-            </button>
-          </form>
+          <UserSearchBar />
         </section>
 
         {/* 프로필 카드 - 미니멀 & 세련된 UI */}
@@ -446,8 +560,7 @@ export default function ProfilePage() {
         {/* Top 5 Album Section - 카드 스타일, 앨범명/아티스트명, 헤더에 아이콘 */}
         <div className="mt-12 mb-12">
           <div className="flex items-center gap-2 mb-4">
-            <svg className="w-6 h-6 text-orange-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="M8 12l2 2 4-4" /></svg>
-            <p className="text-2xl font-bold text-orange-600 tracking-tight">Top 5 Album</p>
+            <p className="text-2xl font-normal text-gray-700 tracking-tight">Top 5 Album</p>
           </div>
           <div className="flex gap-6 w-full">
             {[
@@ -479,9 +592,25 @@ export default function ProfilePage() {
         <div className="w-full border-t border-gray-200 my-12" />
         {/* Album Slider Section - 갤러리, 어두운 배경, 카메라 아이콘, 썸네일만 */}
         <section className="mt-0 bg-gray-50 rounded-2xl py-8 px-2 shadow-inner">
-          <div className="flex items-center gap-2 mb-3">
-            <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2" /><circle cx="12" cy="13" r="4" /><path d="M8 7V5a4 4 0 0 1 8 0v2" /></svg>
-            <h2 className="text-xl font-bold text-gray-700">{nickname} 님의 갤러리</h2>
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <h2 className="text-xl font-medium text-gray-700">{nickname}님의 갤러리</h2>
+            </div>
+            <div className="flex gap-2 items-center">
+              <label className="inline-flex items-center gap-2 cursor-pointer px-4 py-2 border border-gray-200 text-gray-500 bg-white hover:bg-gray-500 hover:text-white text-sm font-semibold rounded-lg shadow transition-all disabled:opacity-60">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19.5 3 21l1.5-4L16.5 3.5z"/></svg>
+                {uploading ? '업로드 중...' : '사진 업로드'}
+                <input type="file" accept="image/*" className="hidden" onChange={handleGalleryUpload} disabled={uploading} />
+              </label>
+              <button
+                type="button"
+                className={`inline-flex items-center gap-2 px-4 py-2 border border-gray-200 text-gray-500 bg-white hover:bg-gray-500 hover:text-white text-sm font-semibold rounded-lg shadow transition-all ${editMode ? 'bg-gray-500 text-white' : ''}`}
+                onClick={() => setEditMode(e => !e)}
+              >
+                <Pencil className="w-4 h-4" />
+                {editMode ? '편집 완료' : '사진 편집'}
+              </button>
+            </div>
           </div>
           <div className="relative" style={{ minHeight: '240px' }}>
             <button
@@ -496,13 +625,30 @@ export default function ProfilePage() {
               ref={containerRef}
               className="overflow-x-auto scrollbar-hide snap-x snap-mandatory flex gap-6 px-10 py-1"
             >
-              {albumImages.map((img, idx) => (
-                <div key={idx} className="snap-start flex-shrink-0 min-w-[170px]">
-                  <div className="w-[170px] h-[226px] rounded-xl overflow-hidden shadow border bg-gray-200">
-                    <img src={img.url} alt={`album-${idx}`} className="w-full h-full object-cover" />
+              {galleryLoading ? (
+                <div className="text-gray-400 text-lg flex items-center justify-center w-full h-40">로딩 중...</div>
+              ) : galleryImages.length === 0 ? (
+                <div className="text-gray-400 text-lg flex items-center justify-center w-full h-40">갤러리 이미지가 없습니다.</div>
+              ) : (
+                galleryImages.map((img, idx) => (
+                  <div key={img.id} className="snap-start flex-shrink-0 min-w-[170px] relative group">
+                    <div className="w-[170px] h-[226px] rounded-xl overflow-hidden shadow border bg-gray-200 relative">
+                      <img src={img.url} alt={`gallery-${idx}`} className="w-full h-full object-cover" />
+                      {editMode && (
+                        <button
+                          type="button"
+                          title="삭제"
+                          onClick={() => handleGalleryDelete(img.id)}
+                          className="absolute top-2 right-2 z-10 p-1 rounded-full border border-orange-500 bg-white/80 text-orange-500 hover:bg-orange-500 hover:text-white transition-colors shadow-lg backdrop-blur-sm"
+                          style={{ boxShadow: '0 2px 8px 0 rgba(255, 87, 34, 0.10)' }}
+                        >
+                          <Trash2 className="w-5 h-5" />
+                        </button>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
             <button
               className="absolute right-0 z-10 bg-white/80 hover:bg-orange-100 border rounded-full w-10 h-10 flex items-center justify-center disabled:opacity-30"
@@ -529,7 +675,7 @@ export default function ProfilePage() {
 
         {/* 공연 이력 */}
         <div className="mt-8">
-          <h2 className="text-xl font-normal text-[#292929] mb-3">공연 이력</h2>
+          <h2 className="text-xl font-medium text-[#292929] mb-3">공연 이력</h2>
           <div className="flex flex-col gap-5">
             {fakePerformances.map((perf, idx) => (
               <div
@@ -571,7 +717,7 @@ export default function ProfilePage() {
         </div>
         {/* 내가 쓴 멤버모집글 */}
         <section className="mt-16">
-          <h2 className="text-xl font-semibold text-gray-800 mb-6">내가 작성한 멤버모집글</h2>
+          <h2 className="text-xl font-medium text-gray-700 mb-6">내가 작성한 멤버모집글</h2>
           {recruitsLoading ? (
             <div className="text-center text-gray-500 py-12 text-lg">로딩 중...</div>
           ) : myRecruits.length === 0 ? (

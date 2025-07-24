@@ -97,7 +97,7 @@ interface ProfileSliderProps {
 }
 
 export default function ProfileSlider({
-  title = "👋함께할 밴드를 찾고 있어요",
+  title = "함께할 밴드를 찾고 있어요🙌",
   showClickHint = true,
 }: ProfileSliderProps) {
   const sliderRef = useRef<HTMLDivElement>(null)
@@ -116,7 +116,7 @@ export default function ProfileSlider({
   return (
     <section className="bg-white py-12">
       <div className="max-w-7xl mx-auto px-4">
-        <h3 className="text-lg font-semibold text-[#2F3438] mb-4">{title}</h3>
+        <h3 className="text-lg font-medium text-[#2F3438] mb-4">{title}</h3>
         <div className="relative">
           <button
             onClick={() => scroll("left")}
