@@ -47,7 +47,6 @@ export default function ProfilePage() {
 
   // 1) 로그인한 유저 ID
   const [currentUserId, setCurrentUserId] = useState<number | null>(null)
-
   // 2) API로 받아온 프로필 정보
   const [userData, setUserData] = useState<ApiResponse["result"] | null>(null)
   const [followingCount, setFollowingCount] = useState(0)
@@ -55,6 +54,22 @@ export default function ProfilePage() {
   // 내가 쓴 모집글
   const [myRecruits, setMyRecruits] = useState<any[]>([])
   const [recruitsLoading, setRecruitsLoading] = useState(true)
+  // 공연 이력 (실제 데이터)
+  const [performances, setPerformances] = useState<any[]>([]);
+  const [perfLoading, setPerfLoading] = useState(true);
+  // 공연 업로드 폼 상태
+  const [perfForm, setPerfForm] = useState({
+    title: '',
+    date: '',
+    teamName: '',
+    thumbnailUrl: '',
+    videoUrl: '',
+    description: '',
+    songs: [{ artist: '', title: '' }],
+  });
+  const [perfUploading, setPerfUploading] = useState(false);
+  // 공연 등록 폼 노출 상태
+  const [showPerfForm, setShowPerfForm] = useState(false);
 
   // Album gallery slider hooks (all at top level)
   // 갤러리 이미지 상태 (API 연동)
@@ -233,55 +248,79 @@ export default function ProfilePage() {
     }
   }, [isBarDragging])
 
-  if (!userData) {
-    return
-  }
+  // 공연 이력 불러오기 (componentDidMount)
+  useEffect(() => {
+    const fetchPerformances = async () => {
+      const accessToken = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+      if (!accessToken || !currentUserId) return;
+      setPerfLoading(true);
+      try {
+        const res = await fetch(`/api/users/performances/${currentUserId}`, {
+          headers: { 'Authorization': `Bearer ${accessToken}` },
+        });
+        const json = await res.json();
+        if (json.isSuccess && Array.isArray(json.result)) {
+          setPerformances(json.result);
+        } else {
+          setPerformances([]);
+        }
+      } catch (err) {
+        setPerformances([]);
+      } finally {
+        setPerfLoading(false);
+      }
+    };
+    fetchPerformances();
+  }, [currentUserId]);
 
-  // 3) 주인 여부 플래그
-  const isOwner = currentUserId === userData.id
+  // 공연 업로드 핸들러
+  const handlePerfUpload = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const accessToken = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+    if (!accessToken) return alert('로그인이 필요합니다.');
+    setPerfUploading(true);
+    try {
+      const res = await fetch('/api/users/performances', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({
+          ...perfForm,
+          songs: perfForm.songs.filter(s => s.artist && s.title),
+        }),
+      });
+      const json = await res.json();
+      if (json.isSuccess) {
+        setPerfForm({ title: '', date: '', teamName: '', thumbnailUrl: '', videoUrl: '', description: '', songs: [{ artist: '', title: '' }] });
+        setShowPerfForm(false);
+        // 최신 목록 불러오기
+        setPerformances(prev => [json.result, ...prev]);
+        alert('공연 기록이 업로드되었습니다!');
+      } else {
+        alert('업로드 실패: ' + (json.message || '오류'));
+      }
+    } catch (err) {
+      alert('업로드 중 오류 발생');
+    } finally {
+      setPerfUploading(false);
+    }
+  };
 
-  const {
-    email,
-    nickname,
-    mbti,
-    instruments,
-    preference,
-    profileImageUrl,
-    isPublic,
-    role,
-    bio = "",
-    location = "",
-    introduction="",
-  } = userData
-
-
-  // 가짜 공연 이력 데이터
-  const fakePerformances = [
-    {
-      title: "홍대 클럽 공연",
-      date: "2024-01-10",
-      venue: "Club FF",
-      role: "리드 기타",
-      image: "https://i.namu.wiki/i/4lrnp8YbRn-JqsdDN1AY62ycbjlJ3BrRICTPFA6oCbVxHW3ysObQ4VEGE_0igIJ46klaC-jrwU8MQAP-ZLWuWg.webp?auto=format&fit=crop&w=400&q=80",
-      setlist: ["Machine Boy", "Silica Gel", "Intro"]
-    },
-    {
-      title: "대학 축제",
-      date: "2023-11-15",
-      venue: "서울대학교",
-      role: "기타",
-      image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80",
-      setlist: ["Festival Song", "Campus Rock"]
-    },
-    {
-      title: "버스킹",
-      date: "2023-09-20",
-      venue: "홍대 걷고싶은거리",
-      role: "어쿠스틱 기타",
-      image: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=400&q=80",
-      setlist: ["Street Melody", "Acoustic Vibes"]
-    },
-  ];
+  const handlePerfFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, idx?: number, field?: string) => {
+    const { name, value } = e.target;
+    if (name === 'artist' || name === 'songTitle') {
+      setPerfForm(prev => ({
+        ...prev,
+        songs: prev.songs.map((s, i) => i === idx ? { ...s, [name === 'artist' ? 'artist' : 'title']: value } : s)
+      }));
+    } else {
+      setPerfForm(prev => ({ ...prev, [name]: value }));
+    }
+  };
+  const handleAddSong = () => setPerfForm(prev => ({ ...prev, songs: [...prev.songs, { artist: '', title: '' }] }));
+  const handleRemoveSong = (idx: number) => setPerfForm(prev => ({ ...prev, songs: prev.songs.filter((_, i) => i !== idx) }));
 
   const genreColorMap: Record<string, string> = {
     INDIE_ROCK: 'text-indigo-600',
@@ -402,6 +441,28 @@ export default function ProfilePage() {
       </form>
     );
   }
+
+  if (!userData) {
+    return
+  }
+
+  // 3) 주인 여부 플래그
+  const isOwner = currentUserId === userData.id
+
+  const {
+    email,
+    nickname,
+    mbti,
+    instruments,
+    preference,
+    profileImageUrl,
+    isPublic,
+    role,
+    bio = "",
+    location = "",
+    introduction="",
+  } = userData
+
 
   return (
     <div className="min-h-screen bg-[#FFFFFF]">
@@ -558,6 +619,7 @@ export default function ProfilePage() {
           </div>
         </Card>
         {/* Top 5 Album Section - 카드 스타일, 앨범명/아티스트명, 헤더에 아이콘 */}
+        {/*
         <div className="mt-12 mb-12">
           <div className="flex items-center gap-2 mb-4">
             <p className="text-2xl font-normal text-gray-700 tracking-tight">Top 5 Album</p>
@@ -588,10 +650,11 @@ export default function ProfilePage() {
             ))}
           </div>
         </div>
+        */}
         {/* 섹션 구분선 */}
         <div className="w-full border-t border-gray-200 my-12" />
         {/* Album Slider Section - 갤러리, 어두운 배경, 카메라 아이콘, 썸네일만 */}
-        <section className="mt-0 bg-gray-50 rounded-2xl py-8 px-2 shadow-inner">
+        <section className="mt-0 bg-gray-50 rounded-2xl py-8 px-2 shadow-inner mb-12">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <h2 className="text-xl font-medium text-gray-700">{nickname}님의 갤러리</h2>
@@ -674,47 +737,98 @@ export default function ProfilePage() {
 
 
         {/* 공연 이력 */}
-        <div className="mt-8">
-          <h2 className="text-xl font-medium text-[#292929] mb-3">공연 이력</h2>
+        <section className="mt-12 bg-gray-50 rounded-2xl py-8 px-2 shadow-inner mb-12">
+          <div className="mt-0">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-medium text-gray-700">공연 이력</h2>
+              {isOwner && !showPerfForm && (
+                <button
+                  onClick={() => setShowPerfForm(true)}
+                  className="px-8 py-3 bg-white rounded-xl shadow border border-gray-200 text-gray-500 font-semibold text-base hover:bg-orange-50 transition-all"
+                >
+                  공연 등록
+                </button>
+              )}
+            </div>
+          {/* 업로드 폼 (isOwner만, showPerfForm true일 때) */}
+          {isOwner && showPerfForm && (
+            <form onSubmit={handlePerfUpload} className="mb-8 bg-orange-50 border border-orange-200 rounded-xl p-6 flex flex-col gap-4">
+              <div className="flex flex-col md:flex-row gap-4">
+                <input name="title" value={perfForm.title} onChange={handlePerfFormChange} required placeholder="공연명" className="flex-1 px-4 py-2 rounded border" />
+                <input name="date" value={perfForm.date} onChange={handlePerfFormChange} required type="date" className="flex-1 px-4 py-2 rounded border" />
+                <input name="teamName" value={perfForm.teamName} onChange={handlePerfFormChange} placeholder="팀명" className="flex-1 px-4 py-2 rounded border" />
+              </div>
+              <div className="flex flex-col md:flex-row gap-4">
+                <input name="thumbnailUrl" value={perfForm.thumbnailUrl} onChange={handlePerfFormChange} placeholder="썸네일 이미지 URL" className="flex-1 px-4 py-2 rounded border" />
+                <input name="videoUrl" value={perfForm.videoUrl} onChange={handlePerfFormChange} placeholder="공연 영상 URL" className="flex-1 px-4 py-2 rounded border" />
+              </div>
+              <textarea name="description" value={perfForm.description} onChange={handlePerfFormChange} placeholder="공연 설명" className="px-4 py-2 rounded border resize-y min-h-[60px]" />
+              <div className="flex flex-col gap-2">
+                <span className="font-semibold text-sm">Setlist (곡 목록)</span>
+                {perfForm.songs.map((song, idx) => (
+                  <div key={idx} className="flex gap-2 mb-1">
+                    <input name="artist" value={song.artist} onChange={e => handlePerfFormChange(e, idx, 'artist')} placeholder="아티스트" className="px-2 py-1 rounded border flex-1" />
+                    <input name="songTitle" value={song.title} onChange={e => handlePerfFormChange(e, idx, 'title')} placeholder="곡명" className="px-2 py-1 rounded border flex-1" />
+                    {perfForm.songs.length > 1 && (
+                      <button type="button" onClick={() => handleRemoveSong(idx)} className="px-2 py-1 bg-red-100 text-red-600 rounded">삭제</button>
+                    )}
+                  </div>
+                ))}
+                <button type="button" onClick={handleAddSong} className="px-3 py-1 bg-orange-200 text-orange-900 rounded w-fit">곡 추가</button>
+              </div>
+              <div className="flex gap-2 justify-end">
+                <button type="button" onClick={() => setShowPerfForm(false)} className="px-6 py-2 bg-gray-200 text-gray-700 rounded font-semibold hover:bg-gray-300">취소</button>
+                <button type="submit" disabled={perfUploading} className="px-6 py-2 bg-orange-500 text-white rounded font-semibold hover:bg-orange-600 disabled:opacity-60">{perfUploading ? '업로드 중...' : '공연 기록 업로드'}</button>
+              </div>
+            </form>
+          )}
           <div className="flex flex-col gap-5">
-            {fakePerformances.map((perf, idx) => (
-              <div
-                key={`${perf.title}-${perf.date}`}
-                className="flex items-center bg-white border border-gray-200 rounded-xl shadow-sm p-3 gap-5"
-              >
+            {perfLoading ? (
+              <div className="text-center text-gray-400 py-8">로딩 중...</div>
+            ) : performances.length === 0 ? (
+              <div className="text-center text-gray-400 py-8">등록된 공연 기록이 없습니다.</div>
+            ) : performances.map((perf, idx) => (
+              <div key={perf.id || perf.title + perf.date} className="flex items-center bg-white border border-gray-200 rounded-xl shadow-sm p-3 gap-5">
                 {/* 썸네일 */}
-                <div className="flex-shrink-0 w-24 h-32 rounded-lg overflow-hidden bg-gray-100 border border-gray-200">
-                  <img
-                    src={perf.image || '/placeholder.jpg'}
-                    alt={perf.title}
-                    className="w-full h-full object-cover"
-                  />
+                <div className="flex-shrink-0 w-32 h-40 rounded-lg overflow-hidden bg-gray-100 border border-gray-200">
+                  <img src={perf.thumbnailUrl || '/placeholder.jpg'} alt={perf.title} className="w-full h-full object-cover" />
                 </div>
                 {/* 공연 정보 */}
                 <div className="flex-1 flex flex-col justify-center min-w-0">
                   <div className="flex items-center gap-2 mb-1">
                     <span className="text-base font-semibold text-gray-900 truncate">{perf.title}</span>
-                    <span className="text-xs text-gray-400">{perf.venue}</span>
+                    <span className="text-xs text-gray-400">{perf.teamName}</span>
                   </div>
                   <div className="flex items-center text-sm text-gray-500 mb-1">
                     <Calendar className="w-4 h-4 mr-1" />
                     <span>{perf.date}</span>
                   </div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <Badge variant="outline" className="text-xs">{perf.role}</Badge>
-                  </div>
+                  {/* 공연 설명 */}
+                  {perf.description && (
+                    <div className="mb-1">
+                      <span className="text-xs text-gray-700">{perf.description}</span>
+                    </div>
+                  )}
                   {/* Setlist 예시 */}
-                  {perf.setlist && perf.setlist.length > 0 && (
+                  {perf.songs && perf.songs.length > 0 && (
                     <div className="mt-1">
                       <span className="text-xs text-gray-400 mr-2">Setlist:</span>
-                      <span className="text-xs text-gray-700">{perf.setlist.join(', ')}</span>
+                      <span className="text-xs text-gray-700 flex flex-col gap-0.5">
+                        {perf.songs.map((s: any, i: number) => (
+                          <span key={i} className="block">{s.artist} - {s.title}</span>
+                        ))}
+                      </span>
                     </div>
+                  )}
+                  {perf.videoUrl && (
+                    <a href={perf.videoUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-500 underline mt-1">공연 영상 보기</a>
                   )}
                 </div>
               </div>
             ))}
           </div>
         </div>
+        </section>
         {/* 내가 쓴 멤버모집글 */}
         <section className="mt-16">
           <h2 className="text-xl font-medium text-gray-700 mb-6">내가 작성한 멤버모집글</h2>
